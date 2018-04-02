@@ -39,7 +39,7 @@ where
         ints
     ).unwrap();
     write!(out,
-           "impl self::FibEncode for {} {{ fn fib_encode(self) -> BitVec {{ bits_from_table(self, FIB_TABLE_{}) }} }}\n",
+           "impl self::FibEncode for {} {{ fn fib_encode_mut(self, vec: &mut BitVec) {{ bits_from_table(self, FIB_TABLE_{}, vec); }} }}\n",
            t_name, t_name.to_uppercase()
     ).unwrap();
 }
