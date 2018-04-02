@@ -1,8 +1,8 @@
 extern crate bit_vec;
-extern crate fib_encode;
+extern crate fibonacci_codec;
 
 use bit_vec::BitVec;
-use fib_encode::FibEncode;
+use fibonacci_codec::FibEncode;
 
 fn to_bits(slice: BitVec) -> Vec<u8> {
     slice.iter().map(|b| if b { 1 } else { 0 } as u8).collect()

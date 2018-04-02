@@ -1,5 +1,5 @@
 [package]
-name = "fib_encode"
+name = "fibonacci_codec"
 version = "0.1.0"
 authors = ["Andreas Fuchs <asf@boinkor.net>"]
 
