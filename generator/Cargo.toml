@@ -1,0 +1,8 @@
+[package]
+name = "generator"
+version = "0.1.0"
+authors = ["Andreas Fuchs <asf@boinkor.net>"]
+
+[dependencies]
+fibonacci = "0.1.1"
+num = "0.1"
