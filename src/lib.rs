@@ -1,44 +1,51 @@
+extern crate bit_vec;
 extern crate num;
 
-use num::{CheckedSub, Integer, Unsigned, Zero};
+use num::CheckedSub;
 use std::fmt::Debug;
+use bit_vec::BitVec;
 
 mod tables;
 
-pub(crate) trait EncodeImpl
-where
-    Self: Integer + Unsigned + CheckedSub + Zero + Sized + Clone + Debug,
-{
-    type TableType;
-    const TABLE: Self::TableType;
-
-    /// Returns
-    fn fibonacci_encode<R: Iterator<Item = bool> + Sized>(n: Self) -> R {
-        panic!("NYI: {:?}", n);
-    }
+/// Allows encoding unsigned integers with fibonacci coding.
+///
+///
+pub trait FibEncode {
+    /// Fibonacci-encodes an integer into a bit vector.
+    fn fib_encode(self) -> BitVec;
 }
 
 #[inline]
-fn indexes_from_table<T>(n: T, table: &'static [T]) -> (T, usize)
+pub(crate) fn bits_from_table<T>(n: T, table: &'static [T]) -> BitVec
 where
-    T: PartialOrd + Debug + Copy,
+    T: CheckedSub + PartialOrd + Debug + Copy,
 {
-    let posn = table.iter().rposition(|elt| n >= *elt);
-    if let Some(i) = posn {
-        (table[i], i)
-    } else {
-        panic!("Could not find {:?} in the table for u8", n)
+    let mut current = n;
+    let split_pos = table
+        .iter()
+        .rposition(|elt| *elt <= n)
+        .unwrap_or_else(|| panic!("BUG: Could not find a fibonacci number less than {:?}", n));
+    let mut result = BitVec::from_elem(split_pos + 2, false);
+
+    result.set(split_pos + 1, true);
+    let mut i = split_pos + 1;
+    for elt in table.split_at(split_pos + 1).0.iter().rev() {
+        i -= 1;
+        result.set(
+            i,
+            if elt <= &current {
+                let next = current.checked_sub(elt).unwrap_or_else(|| {
+                    panic!(
+                        "BUG: could not subtract {:?} from {:?} to encode {:?}",
+                        elt, current, n
+                    )
+                });
+                current = next;
+                true
+            } else {
+                false
+            },
+        );
     }
-}
-
-impl EncodeImpl for u8 {
-    type TableType = &'static [u8];
-    const TABLE: Self::TableType = tables::FIB_TABLE_U8;
-}
-
-#[test]
-fn test_factor_smol() {
-    // assert_eq!(vec![8, 6, 1], fib_position_encode(78 as u8)); // 78 = 55 + 21 + 2
-    // assert_eq!(vec![9, 4, 0], fib_position_encode(98 as u8)); // 98 = 89 + 8 + 1
-    // assert_eq!(vec![6, 4, 2, 0], fib_position_encode(33 as u8)); // 33 = 21 + 8 + 3 + 1
+    result
 }

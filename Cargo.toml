@@ -5,3 +5,4 @@ authors = ["Andreas Fuchs <asf@boinkor.net>"]
 
 [dependencies]
 num = "0.1.42"
+bit-vec = "0.4.4"
