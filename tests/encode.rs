@@ -38,6 +38,9 @@ fn check_slice_u64(numbers: Vec<u64>) -> Vec<u8> {
 #[test]
 fn test_slices_singles() {
     assert_eq!(vec![0, 1, 1], check_slice_u8(vec![2]));
+    assert_eq!(vec![0, 1, 1], check_slice_u16(vec![2]));
+    assert_eq!(vec![0, 1, 1], check_slice_u32(vec![2]));
+    assert_eq!(vec![0, 1, 1], check_slice_u64(vec![2]));
 }
 
 #[test]
