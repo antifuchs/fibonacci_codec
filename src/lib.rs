@@ -11,7 +11,7 @@ mod tables;
 /// Allows encoding unsigned integers with fibonacci coding.
 ///
 ///
-pub trait FibEncode
+pub trait Encode
 where
     Self: Sized,
 {
