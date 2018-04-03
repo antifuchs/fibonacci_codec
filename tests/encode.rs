@@ -20,6 +20,10 @@ fn test_factor_wikipedia() {
         vec![0, 1, 0, 0, 1, 0, 0, 0, 1, 1],
         to_bits((65 as u8).fib_encode())
     );
+    assert_eq!(
+        vec![0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+        to_bits((3003 as u16).fib_encode())
+    );
 }
 
 fn check_slice_u8(numbers: Vec<u8>) -> Vec<u8> {
