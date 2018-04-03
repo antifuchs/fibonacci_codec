@@ -20,9 +20,6 @@ where
 const PREAMBLE: &'static str = r#"// Generated with "cargo run" in ../generator/
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-use bit_vec::BitVec;
-use {bits_from_table, FibEncode};
-
 "#;
 
 fn write_out<T>(out: &mut Write, t_name: &str)
@@ -32,15 +29,10 @@ where
     let ints = generate::<T>();
     write!(
         out,
-        "pub (crate) const FIB_TABLE_{}: &'static [{}; {}] = &{:?};\n",
-        t_name.to_uppercase(),
+        "impl_fib_encode_for_integral_type!({}, {:?}, {});\n",
         t_name,
-        ints.len(),
-        ints
-    ).unwrap();
-    write!(out,
-           "impl self::FibEncode for {} {{ fn fib_encode_mut(self, vec: &mut BitVec) {{ bits_from_table(self, FIB_TABLE_{}, vec); }} }}\n",
-           t_name, t_name.to_uppercase()
+        ints,
+        ints.len()
     ).unwrap();
 }
 

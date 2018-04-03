@@ -5,6 +5,7 @@ use num::CheckedSub;
 use std::fmt::Debug;
 use bit_vec::BitVec;
 
+mod macros;
 mod tables;
 
 /// Allows encoding unsigned integers with fibonacci coding.
@@ -58,37 +59,5 @@ where
                 false
             },
         );
-    }
-}
-
-impl<'a> FibEncode for &'a [u8] {
-    fn fib_encode_mut(self, vec: &mut BitVec) {
-        for elt in self.iter() {
-            elt.fib_encode_mut(vec);
-        }
-    }
-}
-
-impl<'a> FibEncode for &'a [u16] {
-    fn fib_encode_mut(self, vec: &mut BitVec) {
-        for elt in self.iter() {
-            elt.fib_encode_mut(vec);
-        }
-    }
-}
-
-impl<'a> FibEncode for &'a [u32] {
-    fn fib_encode_mut(self, vec: &mut BitVec) {
-        for elt in self.iter() {
-            elt.fib_encode_mut(vec);
-        }
-    }
-}
-
-impl<'a> FibEncode for &'a [u64] {
-    fn fib_encode_mut(self, vec: &mut BitVec) {
-        for elt in self.iter() {
-            elt.fib_encode_mut(vec);
-        }
     }
 }
