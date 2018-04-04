@@ -1,17 +1,20 @@
 #![macro_use]
 
 macro_rules! impl_fib_encode_for_integral_type {
-    ($typename:ident, $table:expr, $tablelength:expr) => {
+    ($typename:ident, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
         pub(crate) mod $typename {
-            use {Encode, Decoder, bits_from_table, decode_from};
+            use {Encode, bits_from_table};
+            use decode::{DecodeError, decode_from};
             use bit_vec::BitVec;
 
-            const TABLE: &'static [$typename; $tablelength] = &($table);
+            pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
+
             impl Encode for $typename {
                 fn fib_encode_mut(self, vec: &mut BitVec) {
                     bits_from_table(self, TABLE, vec);
                 }
             }
+
             impl<'a> Encode for &'a [$typename] {
                 fn fib_encode_mut(self, vec: &mut BitVec) {
                     for elt in self.iter() {
@@ -19,17 +22,28 @@ macro_rules! impl_fib_encode_for_integral_type {
                     }
                 }
             }
-            impl<I> Iterator for Decoder<I, $typename>
+
+            pub struct $decoder_name<I> { orig: I }
+
+            impl<I> Iterator for $decoder_name<I>
             where
                 I: Iterator<Item = bool>,
             {
-                type Item = $typename;
+                type Item = Result<$typename, DecodeError>;
 
-                #[inline]
                 fn next(&mut self) -> Option<Self::Item> {
                     decode_from(&mut self.orig, TABLE)
                 }
             }
+
+            pub fn $decode_name<T, I>(collection: T) -> $decoder_name<I>
+            where
+                T: IntoIterator<Item = bool, IntoIter = I>,
+                I: Iterator<Item = bool>,
+            {
+                $decoder_name { orig: collection.into_iter() }
+            }
         }
+        pub use $typename::*;
     }
 }

@@ -56,16 +56,21 @@
 //! * [Fraenkel, Aviezri S.; Klein, Shmuel T. (1996). "Robust universal complete codes for transmission and compression"](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.37.3064)
 
 extern crate bit_vec;
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 extern crate num;
 
-use num::{CheckedAdd, CheckedSub, One, Zero};
+use num::CheckedSub;
 use std::fmt::Debug;
 use bit_vec::BitVec;
-use std::iter::IntoIterator;
-use std::marker::PhantomData;
 
 mod macros;
 mod tables;
+mod decode;
+
+pub use decode::DecodeError;
+pub use tables::*;
 
 /// Allows encoding unsigned integers (> 0) with fibonacci coding.
 pub trait Encode
@@ -120,64 +125,5 @@ where
                 false
             },
         );
-    }
-}
-fn multiplier<T>(bit: bool) -> T
-where
-    T: Zero + One,
-{
-    if bit {
-        T::one()
-    } else {
-        T::zero()
-    }
-}
-
-fn is_terminator(bit: bool, last: bool) -> bool {
-    bit && last
-}
-
-/// An iterator that decodes Fibonacci-encoded bits into numbers.
-pub struct Decoder<I, Result> {
-    orig: I,
-    _phantom: PhantomData<Result>,
-}
-
-#[inline]
-pub(crate) fn decode_from<I, T>(iterator: &mut I, table: &'static [T]) -> Option<T>
-where
-    I: Iterator<Item = bool>,
-    T: CheckedAdd + PartialOrd + Debug + Copy + Zero + One,
-{
-    let mut i = 0;
-    let mut accumulator: T = T::zero();
-    let mut last = false;
-    while let Some(elt) = iterator.next() {
-        if is_terminator(elt, last) {
-            return Some(accumulator);
-        }
-        let digit = multiplier::<T>(elt) * table[i];
-        if let Some(new_acc) = accumulator.checked_add(&digit) {
-            accumulator = new_acc;
-        } else {
-            // overflow - return the faulty number.
-            return Some(accumulator);
-        }
-        i += 1;
-        last = elt;
-    }
-    // Done with this stream:
-    None
-}
-
-pub fn decode_fib<Result, T, I>(collection: T) -> Decoder<I, Result>
-where
-    T: IntoIterator<Item = bool, IntoIter = I>,
-    I: Iterator<Item = bool>,
-    Result: CheckedAdd + PartialOrd + Debug + Copy + Zero + One,
-{
-    Decoder {
-        orig: collection.into_iter(),
-        _phantom: PhantomData,
     }
 }

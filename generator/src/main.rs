@@ -29,7 +29,9 @@ where
     let ints = generate::<T>();
     write!(
         out,
-        "impl_fib_encode_for_integral_type!({}, {:?}, {});\n",
+        "impl_fib_encode_for_integral_type!({}, Decode{}, decode_{}, {:?}, {});\n",
+        t_name,
+        t_name.to_uppercase(),
         t_name,
         ints,
         ints.len()
