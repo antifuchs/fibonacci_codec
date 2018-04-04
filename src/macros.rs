@@ -2,8 +2,8 @@
 
 macro_rules! impl_fib_encode_for_integral_type {
     ($typename:ident, $table:expr, $tablelength:expr) => {
-        mod $typename {
-            use {Encode, bits_from_table};
+        pub(crate) mod $typename {
+            use {Encode, Decoder, bits_from_table, decode_from};
             use bit_vec::BitVec;
 
             const TABLE: &'static [$typename; $tablelength] = &($table);
@@ -17,6 +17,17 @@ macro_rules! impl_fib_encode_for_integral_type {
                     for elt in self.iter() {
                         bits_from_table(*elt, TABLE, vec);
                     }
+                }
+            }
+            impl<I> Iterator for Decoder<I, $typename>
+            where
+                I: Iterator<Item = bool>,
+            {
+                type Item = $typename;
+
+                #[inline]
+                fn next(&mut self) -> Option<Self::Item> {
+                    decode_from(&mut self.orig, TABLE)
                 }
             }
         }
