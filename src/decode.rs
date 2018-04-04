@@ -1,13 +1,19 @@
 use num::{CheckedAdd, One, Zero};
 use std::fmt::Debug;
 
+/// Returned if decoding a number fails. Usually indicates an overflow
+/// of the number being decoded.
 #[derive(Fail, Debug, PartialEq)]
 pub enum DecodeError {
+    /// Indicates that the decoded number depends on a fibonacci
+    /// sequence element that doesn't fit the return type.
     #[fail(display = "fibonacci sequence element would overflow result type at bit position {:?}",
            bit_pos)]
     FibonacciElementOverflow { bit_pos: usize },
 
-    /// Indicates that the decoded element does not fit into the given
+    /// Indicates that the decoded number does not fit into the given
+    /// result type. This more than anything indicates that a bit flip
+    /// has occurred, and the next number can't be trusted either.
     #[fail(display = "constructing number would overflow at bit position {:?}", bit_pos)]
     ConstructionOverflow { bit_pos: usize },
 }

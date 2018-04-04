@@ -1,7 +1,7 @@
 #![macro_use]
 
 macro_rules! impl_fib_encode_for_integral_type {
-    ($typename:ident, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
+    ($typename:ident, $typename_str:expr, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
         pub(crate) mod $typename {
             use {Encode, bits_from_table};
             use decode::{DecodeError, decode_from};
@@ -23,6 +23,12 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
+            #[doc = "Decodes a fibonacci-encoded bit-stream into `"]
+            #[doc = $typename_str]
+            #[doc = "` integers."]
+            ///
+            /// It wraps an iterator over `bool` and returns the
+            /// result of a decode attempt.
             pub struct $decoder_name<I> { orig: I }
 
             impl<I> Iterator for $decoder_name<I>
@@ -36,6 +42,9 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
+            #[doc = "Wraps an iterator over booleans and decodes into `"]
+            #[doc = $typename_str]
+            #[doc = "` integers."]
             pub fn $decode_name<T, I>(collection: T) -> $decoder_name<I>
             where
                 T: IntoIterator<Item = bool, IntoIter = I>,
