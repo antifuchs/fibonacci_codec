@@ -2,9 +2,12 @@
 
 macro_rules! impl_fib_encode_for_integral_type {
     ($typename:ident, $typename_str:expr, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
-        pub(crate) mod $typename {
+        #[doc = "Functions and iterators to decode `"]
+        #[doc = $typename_str]
+        #[doc = "` integers."]
+        pub mod $typename {
             use encode::{EncodeError, SliceEncodeError, Encode, EncodeSlice, bits_from_table};
-            use decode::{DecodeError, decode_from};
+            use decode::{DecodeIterator, DecodeError, decode_from};
             use bit_vec::BitVec;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
@@ -27,15 +30,14 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
-            #[doc = "Decodes a fibonacci-encoded bit-stream into `"]
-            #[doc = $typename_str]
+            #[doc = "An iterator that yields fibonacci-decoded `"]
+            #[doc = $typename_str ]
             #[doc = "` integers."]
-            ///
-            /// It wraps an iterator over `bool` and returns the
-            /// result of a decode attempt.
-            pub struct $decoder_name<I> { orig: I }
+            pub struct DecodeIter<I> {
+                orig: I,
+            }
 
-            impl<I> Iterator for $decoder_name<I>
+            impl<I> Iterator for DecodeIter<I>
             where
                 I: Iterator<Item = bool>,
             {
@@ -46,17 +48,19 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
-            #[doc = "Wraps an iterator over booleans and decodes into `"]
+            impl<I: Iterator<Item=bool>> DecodeIterator<$typename> for DecodeIter<I> {}
+
+            #[doc = "Returns an iterator that consumes bits (`bool`) and fibonacci-decodes them into `"]
             #[doc = $typename_str]
             #[doc = "` integers."]
-            pub fn $decode_name<T, I>(collection: T) -> $decoder_name<I>
+            pub fn $decode_name<T, I>(collection: T) -> impl DecodeIterator<$typename>
             where
                 T: IntoIterator<Item = bool, IntoIter = I>,
                 I: Iterator<Item = bool>,
             {
-                $decoder_name { orig: collection.into_iter() }
+                DecodeIter { orig: collection.into_iter() }
             }
         }
-        pub use $typename::*;
+        pub use $typename::$decode_name;
     }
 }

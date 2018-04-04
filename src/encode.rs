@@ -3,12 +3,19 @@ use std::fmt::{Debug, Display, Error, Formatter};
 use bit_vec::BitVec;
 use failure::Fail;
 
+/// Indicates that encoding a number failed.
 #[derive(Debug, PartialEq)]
 pub enum EncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
+    /// Indicates an attempt to encode the number `0`, which can't be
+    /// represented in fibonacci encoding.
     ValueTooSmall(T),
+
+    /// A bug in fibonacci_codec in which encoding the contained
+    /// number resulted in an attempt to subtract a larger fibonacci
+    /// number than the number to encode.
     Underflow(T),
 }
 
@@ -30,12 +37,16 @@ where
 {
 }
 
+/// Indicates that encoding a slice failed at a certain element.
 #[derive(Debug, PartialEq)]
 pub struct SliceEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
+    /// The element where encoding the slice failed
     pub index: usize,
+
+    /// The error encountered when encoding the slice.
     pub error: EncodeError<T>,
 }
 
@@ -121,6 +132,7 @@ where
         result.set(
             i,
             if elt <= &current {
+                // TODO: rewind the result bitvec so that it doesn't contain a half-encoded number.
                 let next = current.checked_sub(elt).ok_or(EncodeError::Underflow(n))?;
                 current = next;
                 true

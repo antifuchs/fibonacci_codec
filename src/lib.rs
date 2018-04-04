@@ -32,7 +32,8 @@
 //!
 //! ## Encoding a slice of numbers:
 //! ``` rust
-//! # use fibonacci_codec::EncodeSlice;
+//! use fibonacci_codec::EncodeSlice;
+//!
 //! let numbers: Vec<u16> = vec![1, 50, 3003];
 //! let encoded = &numbers.fib_encode().unwrap();
 //! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
@@ -42,7 +43,8 @@
 //!
 //! ## Encoding the value zero:
 //! ``` rust
-//! # use fibonacci_codec::EncodeSlice;
+//! use fibonacci_codec::EncodeSlice;
+//!
 //! let numbers: Vec<u16> = vec![0, 49, 3002];
 //! let adjusted: Vec<u32> = numbers.iter().map(|n| *n as u32 + 1).collect();
 //! let encoded = &adjusted.fib_encode().unwrap();
@@ -62,10 +64,10 @@ extern crate failure_derive;
 extern crate num;
 
 mod macros;
-mod tables;
+pub mod int;
 mod decode;
 mod encode;
 
-pub use decode::DecodeError;
+pub use decode::{DecodeError, DecodeIterator};
 pub use encode::*;
-pub use tables::*;
+pub use int::*;

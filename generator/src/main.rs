@@ -29,7 +29,7 @@ where
     let ints = generate::<T>();
     write!(
         out,
-        "impl_fib_encode_for_integral_type!({}, {:?}, Decode{}, decode_{}, {:?}, {});\n",
+        "impl_fib_encode_for_integral_type!({}, {:?}, Decode{}, fib_decode_{}, {:?}, {});\n",
         t_name,
         t_name,
         t_name.to_uppercase(),
@@ -40,7 +40,7 @@ where
 }
 
 fn main() {
-    let output = Path::new("../src/tables.rs");
+    let output = Path::new("../src/int.rs");
     let mut out = BufWriter::new(File::create(output).unwrap());
     write!(&mut out, "{}", PREAMBLE).unwrap();
 
