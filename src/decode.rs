@@ -46,10 +46,6 @@ where
     }
 }
 
-/// An iterator yielding integers that consumes Iterators that yield
-/// booleans (representing bits), and fibonacci-decodes them.
-pub trait DecodeIterator<T>: Iterator<Item = Result<T, DecodeError>> {}
-
 #[inline]
 pub(crate) fn decode_from<I, T>(
     iterator: &mut I,
