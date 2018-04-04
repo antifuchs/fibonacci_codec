@@ -32,9 +32,9 @@
 //!
 //! ## Encoding a slice of numbers:
 //! ``` rust
-//! # use fibonacci_codec::Encode;
+//! # use fibonacci_codec::EncodeSlice;
 //! let numbers: Vec<u16> = vec![1, 50, 3003];
-//! let encoded = &numbers.fib_encode();
+//! let encoded = &numbers.fib_encode().unwrap();
 //! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
 //! // These encoded words take up 4 bytes instead of 6 (3*16 bits)!
 //! assert_eq!(encoded.to_bytes(), [0b11001001, 0b01100001, 0b00100001, 0b00011000]);
@@ -42,10 +42,10 @@
 //!
 //! ## Encoding the value zero:
 //! ``` rust
-//! # use fibonacci_codec::Encode;
+//! # use fibonacci_codec::EncodeSlice;
 //! let numbers: Vec<u16> = vec![0, 49, 3002];
 //! let adjusted: Vec<u32> = numbers.iter().map(|n| *n as u32 + 1).collect();
-//! let encoded = &adjusted.fib_encode();
+//! let encoded = &adjusted.fib_encode().unwrap();
 //! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
 //! // These encoded words take up 4 bytes instead of 6 (3*16 bits)!
 //! assert_eq!(encoded.to_bytes(), [0b11001001, 0b01100001, 0b00100001, 0b00011000]);
@@ -61,69 +61,11 @@ extern crate failure;
 extern crate failure_derive;
 extern crate num;
 
-use num::CheckedSub;
-use std::fmt::Debug;
-use bit_vec::BitVec;
-
 mod macros;
 mod tables;
 mod decode;
+mod encode;
 
 pub use decode::DecodeError;
+pub use encode::*;
 pub use tables::*;
-
-/// Allows encoding unsigned integers (> 0) with fibonacci coding.
-pub trait Encode
-where
-    Self: Sized,
-{
-    /// Fibonacci-encodes an integer into a bit vector and returns the resulting vector.
-    /// # Panics
-    /// When encoding zero.
-    fn fib_encode(self) -> BitVec {
-        let mut vec = BitVec::default();
-        self.fib_encode_mut(&mut vec);
-        vec
-    }
-
-    /// Fibonacci-encodes an integer onto the end of an existing bit
-    /// vector. It extends the bit vector by the numer of bits
-    /// required to hold the output.
-    /// # Panics
-    /// When encoding zero.
-    fn fib_encode_mut(self, vec: &mut BitVec);
-}
-
-#[inline]
-pub(crate) fn bits_from_table<T>(n: T, table: &'static [T], result: &mut BitVec)
-where
-    T: CheckedSub + PartialOrd + Debug + Copy,
-{
-    let mut current = n;
-    let split_pos = table
-        .iter()
-        .rposition(|elt| *elt <= n)
-        .unwrap_or_else(|| panic!("BUG: Could not find a fibonacci number less than {:?}", n));
-
-    let mut i = result.len() + split_pos + 1;
-    result.grow(split_pos + 2, false);
-    result.set(i, true);
-    for elt in table.split_at(split_pos + 1).0.iter().rev() {
-        i -= 1;
-        result.set(
-            i,
-            if elt <= &current {
-                let next = current.checked_sub(elt).unwrap_or_else(|| {
-                    panic!(
-                        "BUG: could not subtract {:?} from {:?} to encode {:?}",
-                        elt, current, n
-                    )
-                });
-                current = next;
-                true
-            } else {
-                false
-            },
-        );
-    }
-}

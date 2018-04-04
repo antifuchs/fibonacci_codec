@@ -3,23 +3,27 @@
 macro_rules! impl_fib_encode_for_integral_type {
     ($typename:ident, $typename_str:expr, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
         pub(crate) mod $typename {
-            use {Encode, bits_from_table};
+            use encode::{EncodeError, SliceEncodeError, Encode, EncodeSlice, bits_from_table};
             use decode::{DecodeError, decode_from};
             use bit_vec::BitVec;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
 
             impl Encode for $typename {
-                fn fib_encode_mut(self, vec: &mut BitVec) {
-                    bits_from_table(self, TABLE, vec);
+                fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<$typename>> {
+                    bits_from_table(self, TABLE, vec)
                 }
             }
 
-            impl<'a> Encode for &'a [$typename] {
-                fn fib_encode_mut(self, vec: &mut BitVec) {
-                    for elt in self.iter() {
-                        bits_from_table(*elt, TABLE, vec);
+            impl<'a> EncodeSlice<$typename> for &'a [$typename] {
+                fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), SliceEncodeError<$typename>> {
+                    for (i, elt) in self.iter().enumerate() {
+                        match bits_from_table(*elt, TABLE, vec) {
+                            Ok(_) => {},
+                            Err(e) => { return Err(SliceEncodeError{index: i, error: e}); }
+                        }
                     }
+                    Ok(())
                 }
             }
 
