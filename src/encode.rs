@@ -39,24 +39,24 @@ where
 
 /// Indicates that encoding a slice failed at a certain element.
 #[derive(Debug, PartialEq)]
-pub struct SliceEncodeError<T>
+pub struct ElementEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
-    /// The element where encoding the slice failed
+    /// The element where encoding the slice failed.
     pub index: usize,
 
     /// The error encountered when encoding the slice.
     pub error: EncodeError<T>,
 }
 
-impl<T> Fail for SliceEncodeError<T>
+impl<T> Fail for ElementEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
 }
 
-impl<T> Display for SliceEncodeError<T>
+impl<T> Display for ElementEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
@@ -74,7 +74,10 @@ pub trait Encode
 where
     Self: Sized + Debug + Send + Sync,
 {
-    /// Fibonacci-encodes an integer into a bit vector and returns the resulting vector.
+    /// Fibonacci-encodes an integer into a bit vector and returns the
+    /// resulting vector.
+    /// # Errors
+    /// Returns an error when attempting to encode 0.
     fn fib_encode(self) -> Result<BitVec, EncodeError<Self>> {
         let mut vec = BitVec::default();
         try!(self.fib_encode_mut(&mut vec));
@@ -85,7 +88,7 @@ where
     /// vector. It extends the bit vector by the numer of bits
     /// required to hold the output.
     /// # Errors
-    /// Returns an error when the
+    /// Returns an error when attempting to encode 0.
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self>>;
 }
 
@@ -97,7 +100,7 @@ where
 {
     /// Fibonacci-encodes a slice of integers into a bit vector and
     /// returns the resulting vector of bits.
-    fn fib_encode(self) -> Result<BitVec, SliceEncodeError<T>> {
+    fn fib_encode(self) -> Result<BitVec, ElementEncodeError<T>> {
         let mut vec = BitVec::default();
         try!(self.fib_encode_mut(&mut vec));
         Ok(vec)
@@ -106,7 +109,7 @@ where
     /// Fibonacci-encodes an integer onto the end of an existing bit
     /// vector. It extends the bit vector by the numer of bits
     /// required to hold the output.
-    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), SliceEncodeError<T>>;
+    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<T>>;
 }
 
 #[inline]
