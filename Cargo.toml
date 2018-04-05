@@ -2,9 +2,26 @@
 name = "fibonacci_codec"
 version = "0.1.0"
 authors = ["Andreas Fuchs <asf@boinkor.net>"]
+license = "MIT"
+repository = "https://github.com/antifuchs/fibonacci_codec"
+readme = "README.md"
+description = "Implementation of fibonacci coding for primitive integer types"
+
+[badges]
+travis-ci = { repository = "antifuchs/fibonacci_codec", branch = "master" }
+maintenance = { status = "passively-maintained" }
 
 [dependencies]
 num = "0.1.42"
 bit-vec = "0.4.4"
 failure = "0.1.1"
 failure_derive = "0.1.1"
+
+[package.metadata.release]
+sign-commit = false
+upload-doc = false
+pre-release-commit-message = "Release {{version}} 🎉🎉"
+pro-release-commit-message = "Start next development iteration {{version}}"
+tag-message = "Release {{prefix}}{{version}}"
+dev-version-ext = "dev"
+tag-prefix = "v"
