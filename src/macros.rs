@@ -1,7 +1,8 @@
 #![macro_use]
 
 macro_rules! impl_fib_encode_for_integral_type {
-    ($typename:ident, $typename_str:expr, $decoder_name:ident, $decode_name:ident, $table:expr, $tablelength:expr) => {
+    ($typename:ident, $typename_str:expr, $decoder_name:ident,
+     $decode_name:ident, $table:expr, $tablelength:expr) => {
         #[doc = "Functions and iterators to decode `"]
         #[doc = $typename_str]
         #[doc = "` integers."]
@@ -23,7 +24,10 @@ macro_rules! impl_fib_encode_for_integral_type {
             where
                 T: IntoIterator<Item = $typename> + Debug + Send + Sync,
             {
-                fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<$typename>> {
+                fn fib_encode_mut(
+                    self,
+                    vec: &mut BitVec
+                ) -> Result<(), ElementEncodeError<$typename>> {
                     for (i, elt) in self.into_iter().enumerate() {
                         match bits_from_table(elt, TABLE, vec) {
                             Ok(_) => {},
@@ -45,7 +49,8 @@ macro_rules! impl_fib_encode_for_integral_type {
             {
                 #[doc = "This iterator yields `Ok("]
                 #[doc = $typename_str]
-                #[doc = ")` when a number could be decoded successfully and returns an error otherwise."]
+                #[doc = ")` when a number could be decoded successfully and returns an error"]
+                #[doc = "otherwise."]
                 type Item = Result<$typename, DecodeError>;
 
                 fn next(&mut self) -> Option<Self::Item> {
@@ -58,15 +63,16 @@ macro_rules! impl_fib_encode_for_integral_type {
 
 macro_rules! impl_decoder {
     ($typename:ident, $typename_str:expr, $decode_name:ident) => {
-            #[doc = "Returns an iterator that consumes bits (`bool`) and fibonacci-decodes them into `"]
-            #[doc = $typename_str]
-            #[doc = "` integers."]
-            pub fn $decode_name<T, I>(collection: T) -> super::$typename::DecodeIter<I>
-            where
-                T: IntoIterator<Item = bool, IntoIter = I>,
-                I: Iterator<Item = bool>,
-            {
-                super::$typename::DecodeIter { orig: collection.into_iter() }
-            }
+        #[doc = "Returns an iterator that consumes bits (`bool`) and fibonacci-decodes them"]
+        #[doc = "into `"]
+        #[doc = $typename_str]
+        #[doc = "` integers."]
+        pub fn $decode_name<T, I>(collection: T) -> super::$typename::DecodeIter<I>
+        where
+            T: IntoIterator<Item = bool, IntoIter = I>,
+            I: Iterator<Item = bool>,
+        {
+            super::$typename::DecodeIter { orig: collection.into_iter() }
+        }
     }
 }
