@@ -8,6 +8,7 @@ macro_rules! impl_fib_encode_for_integral_type {
         pub mod $typename {
             use encode::{EncodeError, SliceEncodeError, Encode, EncodeSlice, bits_from_table};
             use decode::{DecodeError, decode_from};
+            use std::fmt::Debug;
             use bit_vec::BitVec;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
@@ -18,10 +19,13 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
-            impl<'a> EncodeSlice<$typename> for &'a [$typename] {
+            impl<T> EncodeSlice<$typename> for T
+            where
+                T: IntoIterator<Item = $typename> + Debug + Send + Sync,
+            {
                 fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), SliceEncodeError<$typename>> {
-                    for (i, elt) in self.iter().enumerate() {
-                        match bits_from_table(*elt, TABLE, vec) {
+                    for (i, elt) in self.into_iter().enumerate() {
+                        match bits_from_table(elt, TABLE, vec) {
                             Ok(_) => {},
                             Err(e) => { return Err(SliceEncodeError{index: i, error: e}); }
                         }
