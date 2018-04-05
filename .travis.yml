@@ -31,7 +31,7 @@ matrix:
 
 before_script:
   - bash -c 'if [[ "$RUN_RUSTFMT" == "true" ]]; then
-      rustup component add rustfmt-preview
+      rustup component add rustfmt-preview;
     fi'
   - bash -c 'if [[ "$RUN_CLIPPY" == "true" ]]; then
       rm -f ~/.cargo/bin/clippy;
@@ -43,7 +43,7 @@ before_script:
 script:
   - cargo test
   - bash -c 'if [[ "$RUN_RUSTFMT" == "true" ]]; then
-      cargo fmt -v -- --write-mode diff
+      cargo fmt -v -- --write-mode diff;
       ;
     fi'
   - bash -c 'if [[ "$TRAVIS_RUST_VERSION" == "nightly" ]]; then
