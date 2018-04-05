@@ -13,7 +13,7 @@ os:
 
 env:
   global:
-    - CRATE_NAME=ratelimit_meter
+    - CRATE_NAME=fibonacci_codec
     - DEPLOY_VERSION=stable
     - RUN_CLIPPY=false
     - RUSTFMT_VERSION=0.3.6
