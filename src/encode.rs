@@ -69,8 +69,9 @@ where
     }
 }
 
-/// Allows encoding unsigned integers (> 0) with fibonacci coding.
-pub trait Encode
+/// Allows encoding single primitive integers (> 0) using fibonacci
+/// coding.
+pub trait EncodeOne
 where
     Self: Sized + Debug + Send + Sync,
 {
@@ -92,8 +93,17 @@ where
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self>>;
 }
 
-/// Allows encoding slices of unsigned integers (> 0) with fibonacci coding.
-pub trait EncodeSlice<T>
+/// Allows encoding enumerations of unsigned integers (> 0) using
+/// fibonacci coding.
+///
+/// This crate implements this trait for anything that is
+/// `IntoIterator` with primitive unsigned integer elements.
+///
+/// ## A note about zero
+/// The number `0` can't be encoded using fibonacci coding. If you
+/// need to encode a zero, you can use `.map(|x| x+1)` before encoding
+/// and invert this when decoding.
+pub trait Encode<T>
 where
     Self: Sized + Debug + Send + Sync,
     T: Debug + Send + Sync,
@@ -107,7 +117,7 @@ where
     }
 
     /// Fibonacci-encodes an integer onto the end of an existing bit
-    /// vector. It extends the bit vector by the numer of bits
+    /// vector. It extends the bit vector by the number of bits
     /// required to hold the output.
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<T>>;
 }

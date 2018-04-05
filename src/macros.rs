@@ -6,20 +6,20 @@ macro_rules! impl_fib_encode_for_integral_type {
         #[doc = $typename_str]
         #[doc = "` integers."]
         pub mod $typename {
-            use encode::{EncodeError, ElementEncodeError, Encode, EncodeSlice, bits_from_table};
+            use encode::{EncodeError, ElementEncodeError, EncodeOne, Encode, bits_from_table};
             use decode::{DecodeError, decode_from};
             use std::fmt::Debug;
             use bit_vec::BitVec;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
 
-            impl Encode for $typename {
+            impl EncodeOne for $typename {
                 fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<$typename>> {
                     bits_from_table(self, TABLE, vec)
                 }
             }
 
-            impl<T> EncodeSlice<$typename> for T
+            impl<T> Encode<$typename> for T
             where
                 T: IntoIterator<Item = $typename> + Debug + Send + Sync,
             {
@@ -41,10 +41,11 @@ macro_rules! impl_fib_encode_for_integral_type {
                 pub(crate) orig: I,
             }
 
-            impl<I> Iterator for $decoder_name<I>
-            where
-                I: Iterator<Item = bool>,
+            impl<I: Iterator<Item = bool>> Iterator for $decoder_name<I>
             {
+                #[doc = "This iterator yields `Ok("]
+                #[doc = $typename_str]
+                #[doc = ")` when a number could be decoded successfully and returns an error otherwise."]
                 type Item = Result<$typename, DecodeError>;
 
                 fn next(&mut self) -> Option<Self::Item> {

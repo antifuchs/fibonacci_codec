@@ -32,7 +32,7 @@
 //!
 //! ## Encoding a slice of numbers:
 //! ``` rust
-//! use fibonacci_codec::EncodeSlice;
+//! use fibonacci_codec::Encode;
 //!
 //! let numbers: Vec<u16> = vec![1, 50, 3003];
 //! let encoded = &numbers.fib_encode().unwrap();
@@ -43,7 +43,7 @@
 //!
 //! ## Encoding the value zero:
 //! ``` rust
-//! use fibonacci_codec::EncodeSlice;
+//! use fibonacci_codec::Encode;
 //!
 //! let numbers: Vec<u16> = vec![0, 49, 3002];
 //! let adjusted: Vec<u32> = numbers.iter().map(|n| *n as u32 + 1).collect();
