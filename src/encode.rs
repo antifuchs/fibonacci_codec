@@ -129,17 +129,24 @@ where
     result.set(i, true);
     for elt in table.split_at(split_pos + 1).0.iter().rev() {
         i -= 1;
-        result.set(
-            i,
-            if elt <= &current {
-                // TODO: rewind the result bitvec so that it doesn't contain a half-encoded number.
-                let next = current.checked_sub(elt).ok_or(EncodeError::Underflow(n))?;
-                current = next;
-                true
-            } else {
-                false
-            },
-        );
+        let bit = if elt > &current {
+            false
+        } else {
+            let next = match current.checked_sub(elt) {
+                Some(next) => next,
+                None => {
+                    // We encountered an underflow. This is a bug, and
+                    // I have no idea how it could even occur in real
+                    // life. However, let's clean up and return a
+                    // reasonable error:
+                    result.truncate(split_pos + 2);
+                    return Err(EncodeError::Underflow(n));
+                }
+            };
+            current = next;
+            true
+        };
+        result.set(i, bit);
     }
     Ok(())
 }
