@@ -25,8 +25,10 @@ where
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
-            EncodeError::ValueTooSmall(n) => write!(f, "value {:?} is too small to encode", n),
-            EncodeError::Underflow(n) => write!(f, "underflow occurred, could not encode {:?}", n),
+            &EncodeError::ValueTooSmall(ref n) => write!(f, "value {:?} is too small to encode", n),
+            &EncodeError::Underflow(ref n) => {
+                write!(f, "underflow occurred, could not encode {:?}", n)
+            }
         }
     }
 }
