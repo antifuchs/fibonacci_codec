@@ -84,8 +84,8 @@ where
     /// Fibonacci-encodes an integer onto the end of an existing bit
     /// vector. It extends the bit vector by the numer of bits
     /// required to hold the output.
-    /// # Panics
-    /// When encoding zero.
+    /// # Errors
+    /// Returns an error when the
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self>>;
 }
 

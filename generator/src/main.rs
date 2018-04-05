@@ -38,6 +38,19 @@ where
     ).unwrap();
 }
 
+fn write_decode_wrapper<'a>(out: &mut Write, t_names: Vec<&'a str>) -> Result<(), std::io::Error> {
+    out.write_all(b"\npub(crate) mod funcs {\n")?;
+    for typename in t_names.iter() {
+        write!(
+            out,
+            "    impl_decoder!({}, {:?}, fib_decode_{});\n",
+            typename, typename, typename
+        )?;
+    }
+    out.write_all(b"}\n")?;
+    Ok(())
+}
+
 fn main() {
     let output = Path::new("../src/int.rs");
     let mut out = BufWriter::new(File::create(output).unwrap());
@@ -47,4 +60,6 @@ fn main() {
     write_out::<u16>(&mut out, "u16");
     write_out::<u32>(&mut out, "u32");
     write_out::<u64>(&mut out, "u64");
+    write_decode_wrapper(&mut out, vec!["u8", "u16", "u32", "u64"]).unwrap();
+    out.flush().unwrap();
 }
