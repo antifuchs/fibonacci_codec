@@ -6,6 +6,7 @@ license = "MIT"
 repository = "https://github.com/antifuchs/fibonacci_codec"
 readme = "README.md"
 description = "Implementation of fibonacci coding for primitive integer types"
+documentation = "https://docs.rs/fibonacci_codec"
 
 [badges]
 travis-ci = { repository = "antifuchs/fibonacci_codec", branch = "master" }
