@@ -39,16 +39,16 @@ where
 {
 }
 
-/// Indicates that encoding a slice failed at a certain element.
+/// Indicates that encoding an iterator failed at an element.
 #[derive(Debug, PartialEq)]
 pub struct ElementEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
-    /// The element where encoding the slice failed.
+    /// The element where encoding of iterator elements failed.
     pub index: usize,
 
-    /// The error encountered when encoding the slice.
+    /// The error encountered when encoding an element on the iterator.
     pub error: EncodeError<T>,
 }
 
@@ -65,7 +65,7 @@ where
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(
             f,
-            "could not encode slice element {:?}: {}",
+            "could not encode iterator element {:?}: {}",
             self.index, self.error
         )
     }
@@ -110,17 +110,24 @@ where
     Self: Sized + Debug + Send + Sync,
     T: Debug + Send + Sync,
 {
-    /// Fibonacci-encodes a slice of integers into a bit vector and
-    /// returns the resulting vector of bits.
+    /// Fibonacci-encodes an iterator of integers into bits and
+    /// returns the resulting bit vector.
     fn fib_encode(self) -> Result<BitVec, ElementEncodeError<T>> {
         let mut vec = BitVec::default();
         try!(self.fib_encode_mut(&mut vec));
         Ok(vec)
     }
 
-    /// Fibonacci-encodes an integer onto the end of an existing bit
-    /// vector. It extends the bit vector by the number of bits
-    /// required to hold the output.
+    /// Fibonacci-encodes an iterator yielding integers onto the end
+    /// of an existing bit vector, until the iterator is exhausted. It
+    /// extends the bit vector by the number of bits required to hold
+    /// the entire output.
+    ///
+    /// # Error handling
+    /// When encountering an encoding error at any element,
+    /// `fib_encode_mut` returns an error indicating at which element
+    /// the error occurred. It leaves the previous, correctly-encoded
+    /// values' bits in the result bit vector.
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<T>>;
 }
 
