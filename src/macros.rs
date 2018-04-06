@@ -1,16 +1,22 @@
 #![macro_use]
 
 macro_rules! impl_fib_encode_for_integral_type {
-    ($typename:ident, $typename_str:expr, $decoder_name:ident,
-     $decode_name:ident, $table:expr, $tablelength:expr) => {
+    (
+        $typename:ident,
+        $typename_str:expr,
+        $decoder_name:ident,
+        $decode_name:ident,
+        $table:expr,
+        $tablelength:expr
+    ) => {
         #[doc = "Functions and iterators to decode `"]
         #[doc = $typename_str]
         #[doc = "` integers."]
         pub mod $typename {
-            use encode::{EncodeError, ElementEncodeError, EncodeOne, Encode, bits_from_table};
-            use decode::{DecodeError, decode_from};
-            use std::fmt::Debug;
             use bit_vec::BitVec;
+            use decode::{decode_from, DecodeError};
+            use encode::{bits_from_table, ElementEncodeError, Encode, EncodeError, EncodeOne};
+            use std::fmt::Debug;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
 
@@ -26,12 +32,14 @@ macro_rules! impl_fib_encode_for_integral_type {
             {
                 fn fib_encode_mut(
                     self,
-                    vec: &mut BitVec
+                    vec: &mut BitVec,
                 ) -> Result<(), ElementEncodeError<$typename>> {
                     for (i, elt) in self.into_iter().enumerate() {
                         match bits_from_table(elt, TABLE, vec) {
-                            Ok(_) => {},
-                            Err(e) => { return Err(ElementEncodeError{index: i, error: e}); }
+                            Ok(_) => {}
+                            Err(e) => {
+                                return Err(ElementEncodeError { index: i, error: e });
+                            }
                         }
                     }
                     Ok(())
@@ -45,8 +53,7 @@ macro_rules! impl_fib_encode_for_integral_type {
                 pub(crate) orig: I,
             }
 
-            impl<I: Iterator<Item = bool>> Iterator for $decoder_name<I>
-            {
+            impl<I: Iterator<Item = bool>> Iterator for $decoder_name<I> {
                 #[doc = "This iterator yields `Ok("]
                 #[doc = $typename_str]
                 #[doc = ")` when a number could be decoded successfully and returns an error"]
@@ -58,7 +65,7 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
         }
-    }
+    };
 }
 
 macro_rules! impl_decoder {
@@ -72,7 +79,9 @@ macro_rules! impl_decoder {
             T: IntoIterator<Item = bool, IntoIter = I>,
             I: Iterator<Item = bool>,
         {
-            super::$typename::DecodeIter { orig: collection.into_iter() }
+            super::$typename::DecodeIter {
+                orig: collection.into_iter(),
+            }
         }
-    }
+    };
 }

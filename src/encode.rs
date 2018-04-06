@@ -1,7 +1,7 @@
-use num::CheckedSub;
-use std::fmt::{Debug, Display, Error, Formatter};
 use bit_vec::BitVec;
 use failure::Fail;
+use num::CheckedSub;
+use std::fmt::{Debug, Display, Error, Formatter};
 
 /// Indicates that encoding a number failed.
 #[derive(Debug, PartialEq)]

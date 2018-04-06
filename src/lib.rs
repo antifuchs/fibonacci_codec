@@ -63,10 +63,10 @@ extern crate failure;
 extern crate failure_derive;
 extern crate num;
 
-mod macros;
-pub mod int;
 mod decode;
 mod encode;
+pub mod int;
+mod macros;
 
 pub use decode::DecodeError;
 pub use encode::*;
