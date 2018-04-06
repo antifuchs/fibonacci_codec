@@ -63,10 +63,12 @@ extern crate failure;
 extern crate failure_derive;
 extern crate num;
 
+// Macros need to be defined first:
+mod macros;
+
 mod decode;
 mod encode;
 pub mod int;
-mod macros;
 
 pub use decode::DecodeError;
 pub use encode::*;
