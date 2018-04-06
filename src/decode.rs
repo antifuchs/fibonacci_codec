@@ -38,7 +38,7 @@ where
     I: Iterator<Item = bool>,
 {
     let mut last = elt;
-    while let Some(elt) = iterator.next() {
+    for elt in iterator {
         if is_terminator(elt, last) {
             break;
         }
@@ -46,6 +46,9 @@ where
     }
 }
 
+// Can't write the loop as `for elt in iterator` because we use the
+// iterator again later:
+#[cfg_attr(feature = "cargo-clippy", allow(while_let_on_iterator))]
 #[inline]
 pub(crate) fn decode_from<I, T>(
     iterator: &mut I,

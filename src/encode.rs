@@ -24,9 +24,9 @@ where
     T: Debug + Send + Sync + 'static,
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        match self {
-            &EncodeError::ValueTooSmall(ref n) => write!(f, "value {:?} is too small to encode", n),
-            &EncodeError::Underflow(ref n) => {
+        match *self {
+            EncodeError::ValueTooSmall(ref n) => write!(f, "value {:?} is too small to encode", n),
+            EncodeError::Underflow(ref n) => {
                 write!(f, "underflow occurred, could not encode {:?}", n)
             }
         }
@@ -137,7 +137,7 @@ where
     let split_pos = table
         .iter()
         .rposition(|elt| *elt <= n)
-        .ok_or(EncodeError::ValueTooSmall::<T>(n))?;
+        .ok_or_else(|| EncodeError::ValueTooSmall::<T>(n))?;
 
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);

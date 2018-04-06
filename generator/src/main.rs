@@ -19,6 +19,7 @@ where
 
 const PREAMBLE: &'static str = r#"// Generated with "cargo run" in ../generator/
 #![cfg_attr(rustfmt, rustfmt_skip)]
+#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
 
 "#;
 
