@@ -59,7 +59,7 @@ script:
       ;
     fi'
   - bash -c 'if [[ "$RUN_RUSTFMT" == "true" ]]; then
-      cargo fmt -v -- --write-mode diff
+      cargo fmt -v -- --check
       ;
     fi'
   - bash -c 'if [[ "$RUN_BENCH" == "true" ]]; then

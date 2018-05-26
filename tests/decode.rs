@@ -3,7 +3,7 @@ extern crate fibonacci_codec;
 extern crate num;
 
 // use bit_vec::BitVec;
-use fibonacci_codec::{DecodeError, Encode, fib_decode_u64, fib_decode_u8};
+use fibonacci_codec::{fib_decode_u64, fib_decode_u8, DecodeError, Encode};
 use std::iter::Iterator;
 
 #[test]

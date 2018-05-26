@@ -7,8 +7,10 @@ use std::fmt::Debug;
 pub enum DecodeError {
     /// Indicates that the decoded number depends on a fibonacci
     /// sequence element that doesn't fit the return type.
-    #[fail(display = "fibonacci sequence element would overflow result type at bit position {:?}",
-           bit_pos)]
+    #[fail(
+        display = "fibonacci sequence element would overflow result type at bit position {:?}",
+        bit_pos
+    )]
     FibonacciElementOverflow { bit_pos: usize },
 
     /// Indicates that the decoded number does not fit into the given
