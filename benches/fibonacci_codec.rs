@@ -6,7 +6,7 @@ extern crate fibonacci_codec;
 use bit_vec::BitVec;
 use fibonacci_codec::*;
 
-use criterion::Criterion;
+use criterion::{black_box, Criterion, ParameterizedBenchmark, Throughput};
 
 #[derive(Debug)]
 enum Width {
@@ -37,55 +37,63 @@ impl Width {
     }
 }
 
-fn encode_1_benchmark(c: &mut Criterion) {
-    c.bench_function_over_inputs(
-        "encode_1",
-        |b, &n| b.iter(|| n.sample().fib_encode().expect("should be encodable")),
-        &[Width::U8, Width::U16, Width::U32, Width::U64],
-    );
-}
+const ALL: &'static [Width; 4] = &[Width::U8, Width::U16, Width::U32, Width::U64];
+const ELTS: usize = 20;
 
 fn encode_multiple_benchmark(c: &mut Criterion) {
-    c.bench_function_over_inputs(
-        "encode_multiple",
-        |b, &&n| {
+    let id = "encode_multiple";
+    let bm = ParameterizedBenchmark::new(
+        id,
+        |b, ref n| {
             b.iter(|| {
-                let v = vec![n as u64; 20];
+                let v = vec![n.sample(); ELTS];
                 v.fib_encode().expect("should be encodable")
             })
         },
-        &[0xf0, 0xfff0, 0xfffffff0 as u64, 0xfffffffffffffff0 as u64],
+        ALL,
+    ).throughput(|_s| Throughput::Elements(ELTS as u32));
+    c.bench(id, bm);
+}
+
+fn decode_multiple_benchmark(c: &mut Criterion) {
+    let id = "decode_multiple";
+    let bm = ParameterizedBenchmark::new(
+        id,
+        |b, ref d| {
+            let input = vec![d.sample(); ELTS];
+            let bits = input.fib_encode().unwrap();
+            b.iter(move || assert_eq!(ELTS, d.decode(&bits)));
+        },
+        ALL,
+    ).throughput(|_s| Throughput::Elements(ELTS as u32));
+    c.bench(id, bm);
+}
+
+fn encode_1_benchmark(c: &mut Criterion) {
+    c.bench_function_over_inputs(
+        "encode_1",
+        |b, ref n| b.iter(|| n.sample().fib_encode().expect("should be encodable")),
+        ALL,
     );
 }
 
 fn decode_1_benchmark(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "decode_1",
-        |b, &d| {
+        |b, ref d| {
             let input = d.sample();
             let bits = input.fib_encode().unwrap();
-            b.iter(move || d.decode(&bits));
+            b.iter(move || black_box(d.decode(&bits)));
         },
-        &[Width::U8, Width::U16, Width::U32, Width::U64],
+        ALL,
     );
 }
 
-fn decode_multiple_benchmark(c: &mut Criterion) {
-    c.bench_function_over_inputs(
-        "decode_multiple",
-        |b, &d| {
-            let input = vec![d.sample() as u8; 20];
-            let bits = input.fib_encode().unwrap();
-            b.iter(move || assert_eq!(20, d.decode(&bits)));
-        },
-        &[Width::U8, Width::U16, Width::U32, Width::U64],
-    );
-}
 criterion_group!(
     benches,
-    encode_1_benchmark,
     encode_multiple_benchmark,
-    decode_1_benchmark,
     decode_multiple_benchmark,
+    encode_1_benchmark,
+    decode_1_benchmark,
 );
 criterion_main!(benches);
