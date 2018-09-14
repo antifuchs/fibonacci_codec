@@ -33,11 +33,7 @@ where
     }
 }
 
-impl<T> Fail for EncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-}
+impl<T> Fail for EncodeError<T> where T: Debug + Send + Sync + 'static {}
 
 /// Indicates that encoding an iterator failed at an element.
 #[derive(Debug, PartialEq)]
@@ -52,11 +48,7 @@ where
     pub error: EncodeError<T>,
 }
 
-impl<T> Fail for ElementEncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-}
+impl<T> Fail for ElementEncodeError<T> where T: Debug + Send + Sync + 'static {}
 
 impl<T> Display for ElementEncodeError<T>
 where

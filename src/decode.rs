@@ -16,7 +16,10 @@ pub enum DecodeError {
     /// Indicates that the decoded number does not fit into the given
     /// result type. This more than anything indicates that a bit flip
     /// has occurred, and the next number can't be trusted either.
-    #[fail(display = "constructing number would overflow at bit position {:?}", bit_pos)]
+    #[fail(
+        display = "constructing number would overflow at bit position {:?}",
+        bit_pos
+    )]
     ConstructionOverflow { bit_pos: usize },
 }
 
