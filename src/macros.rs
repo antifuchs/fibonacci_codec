@@ -3,6 +3,7 @@
 macro_rules! impl_fib_encode_for_integral_type {
     (
         $typename:ident,
+        $safe_typename:ident,
         $typename_str:expr,
         $decoder_name:ident,
         $decode_name:ident,
@@ -17,25 +18,28 @@ macro_rules! impl_fib_encode_for_integral_type {
             use decode::{decode_from, DecodeError};
             use encode::{bits_from_table, ElementEncodeError, Encode, EncodeError, EncodeOne};
             use std::fmt::Debug;
+            use std::num::$safe_typename;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
 
-            impl EncodeOne for $typename {
+            impl EncodeOne for $safe_typename {
+                type Base = $typename;
+
                 fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<$typename>> {
-                    bits_from_table(self, TABLE, vec)
+                    bits_from_table(self.get(), TABLE, vec)
                 }
             }
 
-            impl<T> Encode<$typename> for T
+            impl<'a, T> Encode<$typename, $safe_typename> for T
             where
-                T: IntoIterator<Item = $typename> + Debug + Send + Sync,
+                T: IntoIterator<Item = &'a $safe_typename> + Debug + Send + Sync,
             {
                 fn fib_encode_mut(
                     self,
                     vec: &mut BitVec,
                 ) -> Result<(), ElementEncodeError<$typename>> {
                     for (i, elt) in self.into_iter().enumerate() {
-                        match bits_from_table(elt, TABLE, vec) {
+                        match bits_from_table(elt.get(), TABLE, vec) {
                             Ok(_) => {}
                             Err(e) => {
                                 return Err(ElementEncodeError { index: i, error: e });

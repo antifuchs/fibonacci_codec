@@ -68,12 +68,17 @@ where
 pub trait EncodeOne
 where
     Self: Sized + Debug + Send + Sync,
+    Self::Base: Sized + Debug + Send + Sync,
 {
+    /// The base numeric type that this trait encodes. E.g., for
+    /// `NonZeroU8`, this is `u8`.
+    type Base;
+
     /// Fibonacci-encodes an integer into a bit vector and returns the
     /// resulting vector.
     /// # Errors
     /// Returns an error when attempting to encode 0.
-    fn fib_encode(self) -> Result<BitVec, EncodeError<Self>> {
+    fn fib_encode(self) -> Result<BitVec, EncodeError<Self::Base>> {
         let mut vec = BitVec::default();
         try!(self.fib_encode_mut(&mut vec));
         Ok(vec)
@@ -84,7 +89,7 @@ where
     /// required to hold the output.
     /// # Errors
     /// Returns an error when attempting to encode 0.
-    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self>>;
+    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self::Base>>;
 }
 
 /// Allows encoding enumerations of unsigned integers (> 0) using
@@ -97,10 +102,11 @@ where
 /// The number `0` can't be encoded using fibonacci coding. If you
 /// need to encode a zero, you can use `.map(|x| x+1)` before encoding
 /// and invert this when decoding.
-pub trait Encode<T>
+pub trait Encode<T, S>
 where
     Self: Sized + Debug + Send + Sync,
     T: Debug + Send + Sync,
+    S: Debug + Send + Sync,
 {
     /// Fibonacci-encodes an iterator of integers into bits and
     /// returns the resulting bit vector.

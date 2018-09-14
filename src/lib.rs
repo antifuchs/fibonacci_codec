@@ -20,34 +20,21 @@
 //! Fibonacci coding can represent any number that can be expressed as
 //! addition of one or more Fibonacci numbers, so any integer greater
 //! than 1, up to the range of the given machine integer type. This
-//! means that the integer zero can not be encoded.
-//!
-//! If you should need to encode `0`, it is advisable to encode
-//! numbers incremented by one (preventing overflow by upgrading to
-//! the next-biggest integer type, or by not encoding the maximum
-//! value), and to subtract one from the decoded result.
-//! .
+//! means that the integer zero can not be encoded. This crate uses
+//! the `NonZeroU*` types as inputs. I recommend using the traits in
+//! [nonzero_ext](https://crates.io/crates/nonzero_ext) to help with
+//! conversions from primitive types.
 //!
 //! # Examples
 //!
 //! ## Encoding a slice of numbers:
 //! ``` rust
+//! # use std::num::NonZeroU16;
 //! use fibonacci_codec::Encode;
 //!
 //! let numbers: Vec<u16> = vec![1, 50, 3003];
+//! let numbers: Vec<NonZeroU16> = numbers.iter().filter_map(|n| NonZeroU16::new(*n)).collect();
 //! let encoded = &numbers.fib_encode().unwrap();
-//! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
-//! // These encoded words take up 4 bytes instead of 6 (3*16 bits)!
-//! assert_eq!(encoded.to_bytes(), [0b11001001, 0b01100001, 0b00100001, 0b00011000]);
-//! ```
-//!
-//! ## Encoding the value zero:
-//! ``` rust
-//! use fibonacci_codec::Encode;
-//!
-//! let numbers: Vec<u16> = vec![0, 49, 3002];
-//! let adjusted: Vec<u32> = numbers.iter().map(|n| *n as u32 + 1).collect();
-//! let encoded = &adjusted.fib_encode().unwrap();
 //! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
 //! // These encoded words take up 4 bytes instead of 6 (3*16 bits)!
 //! assert_eq!(encoded.to_bytes(), [0b11001001, 0b01100001, 0b00100001, 0b00011000]);

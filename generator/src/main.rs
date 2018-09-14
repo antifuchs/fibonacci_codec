@@ -2,12 +2,12 @@ extern crate fibonacci;
 extern crate num;
 
 use fibonacci::Fibonacci;
-use std::fs::File;
 use num::{CheckedAdd, One, Zero};
 use std::fmt::Debug;
+use std::fs::File;
 use std::io::BufWriter;
-use std::path::Path;
 use std::io::Write;
+use std::path::Path;
 
 fn generate<T>() -> Vec<T>
 where
@@ -23,15 +23,16 @@ const PREAMBLE: &'static str = r#"// Generated with "cargo run" in ../generator/
 
 "#;
 
-fn write_out<T>(out: &mut Write, t_name: &str)
+fn write_out<T>(out: &mut Write, t_name: &str, safe_t_name: &str)
 where
     T: Zero + One + Debug + CheckedAdd + Clone,
 {
     let ints = generate::<T>();
     write!(
         out,
-        "impl_fib_encode_for_integral_type!({}, {:?}, DecodeIter, fib_decode_{}, {:?}, {});\n",
+        "impl_fib_encode_for_integral_type!({}, {}, {:?}, DecodeIter, fib_decode_{}, {:?}, {});\n",
         t_name,
+        safe_t_name,
         t_name,
         t_name,
         ints,
@@ -57,10 +58,11 @@ fn main() {
     let mut out = BufWriter::new(File::create(output).unwrap());
     write!(&mut out, "{}", PREAMBLE).unwrap();
 
-    write_out::<u8>(&mut out, "u8");
-    write_out::<u16>(&mut out, "u16");
-    write_out::<u32>(&mut out, "u32");
-    write_out::<u64>(&mut out, "u64");
-    write_decode_wrapper(&mut out, vec!["u8", "u16", "u32", "u64"]).unwrap();
+    write_out::<u8>(&mut out, "u8", "NonZeroU8");
+    write_out::<u16>(&mut out, "u16", "NonZeroU16");
+    write_out::<u32>(&mut out, "u32", "NonZeroU32");
+    write_out::<u64>(&mut out, "u64", "NonZeroU64");
+    write_out::<u128>(&mut out, "u128", "NonZeroU128");
+    write_decode_wrapper(&mut out, vec!["u8", "u16", "u32", "u64", "u128"]).unwrap();
     out.flush().unwrap();
 }
