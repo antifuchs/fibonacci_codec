@@ -12,14 +12,9 @@ documentation = "https://docs.rs/fibonacci_codec"
 travis-ci = { repository = "antifuchs/fibonacci_codec", branch = "master" }
 maintenance = { status = "passively-maintained" }
 
-[dependencies]
-num = "0.1.42"
-bit-vec = "0.4.4"
-failure = "0.1.1"
-failure_derive = "0.1.1"
-
-[dev-dependencies]
-proptest = "0.6.0"
+[[bench]]
+name = "fibonacci_codec"
+harness = false
 
 [package.metadata.release]
 sign-commit = false
@@ -29,3 +24,13 @@ pro-release-commit-message = "Start next development iteration {{version}}"
 tag-message = "Release {{prefix}}{{version}}"
 dev-version-ext = "dev"
 tag-prefix = "v"
+
+[dependencies]
+num = "0.1.42"
+bit-vec = "0.4.4"
+failure = "0.1.1"
+failure_derive = "0.1.1"
+
+[dev-dependencies]
+proptest = "0.6.0"
+criterion = "0.2"
