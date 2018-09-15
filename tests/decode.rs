@@ -22,7 +22,7 @@ macro_rules! test_for_roundtrip {
         #[test]
         fn $name() {
             let input = a_vec::<$input_type>($vec);
-            let encoded = input.iter().fib_encode().unwrap();
+            let encoded = input.iter().fib_encode();
             let decoded: Vec<$input_type> = $decoder(encoded).map(|x| x.unwrap()).collect();
             assert_eq!(
                 input
@@ -69,7 +69,7 @@ test_for_roundtrip!(
 #[test]
 fn test_overflow_from_fib_elt() {
     let input = a_vec::<u64>(vec![23894089128374]);
-    let encoded = input.clone().fib_encode().unwrap();
+    let encoded = input.clone().fib_encode();
     let decoded: Vec<Result<u8, DecodeError>> = fib_decode_u8(encoded).collect();
     assert_eq!(
         Err(DecodeError::FibonacciElementOverflow { bit_pos: 12 }),
@@ -80,7 +80,7 @@ fn test_overflow_from_fib_elt() {
 #[test]
 fn test_overflow_from_addition() {
     let input = a_vec::<u64>(vec![256]);
-    let encoded = input.fib_encode().unwrap();
+    let encoded = input.fib_encode();
     let decoded: Vec<Result<u8, DecodeError>> = fib_decode_u8(encoded).collect();
     assert_eq!(
         Err(DecodeError::ConstructionOverflow { bit_pos: 11 }),

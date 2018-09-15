@@ -49,7 +49,7 @@ fn encode_multiple_benchmark(c: &mut Criterion) {
         |b, ref n| {
             b.iter(|| {
                 let v = vec![n.sample().as_nonzero().unwrap(); ELTS];
-                v.fib_encode().expect("should be encodable")
+                v.fib_encode()
             })
         },
         ALL,
@@ -63,7 +63,7 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
         id,
         |b, ref d| {
             let input = vec![d.sample().as_nonzero().unwrap(); ELTS];
-            let bits = input.fib_encode().unwrap();
+            let bits = input.fib_encode();
             b.iter(move || assert_eq!(ELTS, d.decode(&bits)));
         },
         ALL,
@@ -74,15 +74,7 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
 fn encode_1_benchmark(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "encode_1",
-        |b, ref n| {
-            b.iter(|| {
-                n.sample()
-                    .as_nonzero()
-                    .unwrap()
-                    .fib_encode()
-                    .expect("should be encodable")
-            })
-        },
+        |b, ref n| b.iter(|| n.sample().as_nonzero().unwrap().fib_encode()),
         ALL,
     );
 }
@@ -92,7 +84,7 @@ fn decode_1_benchmark(c: &mut Criterion) {
         "decode_1",
         |b, ref d| {
             let input = d.sample();
-            let bits = input.as_nonzero().unwrap().fib_encode().unwrap();
+            let bits = input.as_nonzero().unwrap().fib_encode();
             b.iter(move || black_box(d.decode(&bits)));
         },
         ALL,

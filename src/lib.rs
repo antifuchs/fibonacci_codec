@@ -34,7 +34,7 @@
 //!
 //! let numbers: Vec<u16> = vec![1, 50, 3003];
 //! let numbers: Vec<NonZeroU16> = numbers.iter().filter_map(|n| NonZeroU16::new(*n)).collect();
-//! let encoded = &numbers.fib_encode().unwrap();
+//! let encoded = &numbers.fib_encode();
 //! // code words: "11" (1), "001001011" (50), "000010010000100011" (3003)
 //! // These encoded words take up 4 bytes instead of 6 (3*16 bits)!
 //! assert_eq!(encoded.to_bytes(), [0b11001001, 0b01100001, 0b00100001, 0b00011000]);

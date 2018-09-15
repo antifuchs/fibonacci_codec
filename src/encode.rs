@@ -30,34 +30,6 @@ where
 
 impl<T> Fail for EncodeError<T> where T: Debug + Send + Sync + 'static {}
 
-/// Indicates that encoding an iterator failed at an element.
-#[derive(Debug, PartialEq)]
-pub struct ElementEncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-    /// The element where encoding of iterator elements failed.
-    pub index: usize,
-
-    /// The error encountered when encoding an element on the iterator.
-    pub error: EncodeError<T>,
-}
-
-impl<T> Fail for ElementEncodeError<T> where T: Debug + Send + Sync + 'static {}
-
-impl<T> Display for ElementEncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(
-            f,
-            "could not encode iterator element {:?}: {}",
-            self.index, self.error
-        )
-    }
-}
-
 /// Allows encoding single primitive integers (> 0) using fibonacci
 /// coding.
 pub trait EncodeOne
@@ -73,10 +45,10 @@ where
     /// resulting vector.
     /// # Errors
     /// Returns an error when attempting to encode 0.
-    fn fib_encode(self) -> Result<BitVec, EncodeError<Self::Base>> {
+    fn fib_encode(self) -> BitVec {
         let mut vec = BitVec::default();
-        try!(self.fib_encode_mut(&mut vec));
-        Ok(vec)
+        self.fib_encode_mut(&mut vec);
+        vec
     }
 
     /// Fibonacci-encodes an integer onto the end of an existing bit
@@ -84,7 +56,7 @@ where
     /// required to hold the output.
     /// # Errors
     /// Returns an error when attempting to encode 0.
-    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<Self::Base>>;
+    fn fib_encode_mut(self, vec: &mut BitVec);
 }
 
 /// Allows encoding enumerations of unsigned integers (> 0) using
@@ -105,10 +77,10 @@ where
 {
     /// Fibonacci-encodes an iterator of integers into bits and
     /// returns the resulting bit vector.
-    fn fib_encode(self) -> Result<BitVec, ElementEncodeError<T>> {
+    fn fib_encode(self) -> BitVec {
         let mut vec = BitVec::default();
-        try!(self.fib_encode_mut(&mut vec));
-        Ok(vec)
+        self.fib_encode_mut(&mut vec);
+        vec
     }
 
     /// Fibonacci-encodes an iterator yielding integers onto the end
@@ -121,7 +93,7 @@ where
     /// `fib_encode_mut` returns an error indicating at which element
     /// the error occurred. It leaves the previous, correctly-encoded
     /// values' bits in the result bit vector.
-    fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<T>>;
+    fn fib_encode_mut(self, vec: &mut BitVec);
 }
 
 fn fibonacci_bit_value<T>(table: &'static [T], n: T) -> usize
@@ -132,7 +104,7 @@ where
         Ok(pos) => pos,
         Err(insert_pos) => {
             if insert_pos == 0 {
-                panic!("Encountered a zero value trying to encode a value");
+                panic!("encountered a zero trying to fibonacci-encode a value");
             }
             insert_pos - 1
         }
@@ -140,11 +112,7 @@ where
 }
 
 #[inline]
-pub(crate) fn bits_from_table<T>(
-    n: T,
-    table: &'static [T],
-    result: &mut BitVec,
-) -> Result<(), EncodeError<T>>
+pub(crate) fn bits_from_table<T>(n: T, table: &'static [T], result: &mut BitVec)
 where
     T: CheckedSub + Ord + Debug + Copy + Send + Sync + 'static,
 {
@@ -164,10 +132,8 @@ where
                 None => {
                     // We encountered an underflow. This is a bug, and
                     // I have no idea how it could even occur in real
-                    // life. However, let's clean up and return a
-                    // reasonable error:
-                    result.truncate(split_pos + 2);
-                    return Err(EncodeError::Underflow(n));
+                    // life. A panic seems appropriate:
+                    panic!("underflow in substraction while encoding {:?}", n);
                 }
             };
             current = next;
@@ -175,5 +141,4 @@ where
         };
         result.set(i, bit);
     }
-    Ok(())
 }

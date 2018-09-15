@@ -18,7 +18,7 @@ proptest! {
    #[test]
     fn roundtrips(input in any::<u64>().prop_filter("Values must be >0".to_owned(),
                                                     |v| v.as_nonzero().is_some())) {
-        let bits = input.as_nonzero().unwrap().fib_encode().expect("Expected an Ok result");
+        let bits = input.as_nonzero().unwrap().fib_encode();
         if input <= 0xff {
             let decoded: Vec<u8> = fib_decode_u8(&bits).filter_map(|x| x.ok()).collect();
             prop_assert_eq!(decoded, vec![input as u8], "Decoding as u8");
@@ -41,7 +41,7 @@ proptest! {
                                                                            |v| v.as_nonzero().is_some()),
                                                   1..100)) {
         let input = input.into_iter().filter_map(|i| i.as_nonzero()).collect::<Vec<NonZeroU64>>();
-        let bits = input.clone().fib_encode().expect("Expected an Ok result");
+        let bits = input.clone().fib_encode();
         let decoded: Vec<u64> = fib_decode_u64(bits).filter_map(|x| x.ok()).collect();
         prop_assert_eq!(decoded,
                         input
