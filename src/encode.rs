@@ -9,10 +9,6 @@ pub enum EncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
-    /// Indicates an attempt to encode the number `0`, which can't be
-    /// represented in fibonacci encoding.
-    ValueTooSmall(T),
-
     /// A bug in fibonacci_codec in which encoding the contained
     /// number resulted in an attempt to subtract a larger fibonacci
     /// number than the number to encode.
@@ -25,7 +21,6 @@ where
 {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match *self {
-            EncodeError::ValueTooSmall(ref n) => write!(f, "value {:?} is too small to encode", n),
             EncodeError::Underflow(ref n) => {
                 write!(f, "underflow occurred, could not encode {:?}", n)
             }
@@ -129,6 +124,21 @@ where
     fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), ElementEncodeError<T>>;
 }
 
+fn fibonacci_bit_value<T>(table: &'static [T], n: T) -> usize
+where
+    T: CheckedSub + Ord + Debug + Copy + Send + Sync + 'static,
+{
+    match table.binary_search(&n) {
+        Ok(pos) => pos,
+        Err(insert_pos) => {
+            if insert_pos == 0 {
+                panic!("Encountered a zero value trying to encode a value");
+            }
+            insert_pos - 1
+        }
+    }
+}
+
 #[inline]
 pub(crate) fn bits_from_table<T>(
     n: T,
@@ -136,13 +146,10 @@ pub(crate) fn bits_from_table<T>(
     result: &mut BitVec,
 ) -> Result<(), EncodeError<T>>
 where
-    T: CheckedSub + PartialOrd + Debug + Copy + Send + Sync + 'static,
+    T: CheckedSub + Ord + Debug + Copy + Send + Sync + 'static,
 {
     let mut current = n;
-    let split_pos = table
-        .iter()
-        .rposition(|elt| *elt <= n)
-        .ok_or_else(|| EncodeError::ValueTooSmall::<T>(n))?;
+    let split_pos = fibonacci_bit_value(table, n);
 
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);
