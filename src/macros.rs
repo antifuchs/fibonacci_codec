@@ -30,7 +30,7 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
-            impl<'a, T> Encode<$typename, $safe_typename> for T
+            impl<'a, T> Encode<$safe_typename> for T
             where
                 T: IntoIterator<Item = &'a $safe_typename> + Debug + Send + Sync,
             {

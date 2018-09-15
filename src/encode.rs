@@ -1,37 +1,9 @@
 use bit_vec::BitVec;
-use failure::Fail;
 use num::CheckedSub;
-use std::fmt::{Debug, Display, Error, Formatter};
+use std::fmt::Debug;
 
-/// Indicates that encoding a number failed.
-#[derive(Debug, PartialEq)]
-pub enum EncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-    /// A bug in fibonacci_codec in which encoding the contained
-    /// number resulted in an attempt to subtract a larger fibonacci
-    /// number than the number to encode.
-    Underflow(T),
-}
-
-impl<T> Display for EncodeError<T>
-where
-    T: Debug + Send + Sync + 'static,
-{
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        match *self {
-            EncodeError::Underflow(ref n) => {
-                write!(f, "underflow occurred, could not encode {:?}", n)
-            }
-        }
-    }
-}
-
-impl<T> Fail for EncodeError<T> where T: Debug + Send + Sync + 'static {}
-
-/// Allows encoding single primitive integers (> 0) using fibonacci
-/// coding.
+/// Allows encoding single non-zero unsigned integers into bit vectors
+/// using fibonacci coding.
 pub trait EncodeOne
 where
     Self: Sized + Debug + Send + Sync,
@@ -43,8 +15,6 @@ where
 
     /// Fibonacci-encodes an integer into a bit vector and returns the
     /// resulting vector.
-    /// # Errors
-    /// Returns an error when attempting to encode 0.
     fn fib_encode(self) -> BitVec {
         let mut vec = BitVec::default();
         self.fib_encode_mut(&mut vec);
@@ -59,20 +29,15 @@ where
     fn fib_encode_mut(self, vec: &mut BitVec);
 }
 
-/// Allows encoding enumerations of unsigned integers (> 0) using
+/// Allows encoding enumerations of non-zero unsigned integers using
 /// fibonacci coding.
 ///
 /// This crate implements this trait for anything that is
-/// `IntoIterator` with primitive unsigned integer elements.
-///
-/// ## A note about zero
-/// The number `0` can't be encoded using fibonacci coding. If you
-/// need to encode a zero, you can use `.map(|x| x+1)` before encoding
-/// and invert this when decoding.
-pub trait Encode<T, S>
+/// `IntoIterator` with non-zero unsigned integer elements, including
+/// other iterators.
+pub trait Encode<S>
 where
     Self: Sized + Debug + Send + Sync,
-    T: Debug + Send + Sync,
     S: Debug + Send + Sync,
 {
     /// Fibonacci-encodes an iterator of integers into bits and
@@ -87,12 +52,6 @@ where
     /// of an existing bit vector, until the iterator is exhausted. It
     /// extends the bit vector by the number of bits required to hold
     /// the entire output.
-    ///
-    /// # Error handling
-    /// When encountering an encoding error at any element,
-    /// `fib_encode_mut` returns an error indicating at which element
-    /// the error occurred. It leaves the previous, correctly-encoded
-    /// values' bits in the result bit vector.
     fn fib_encode_mut(self, vec: &mut BitVec);
 }
 
