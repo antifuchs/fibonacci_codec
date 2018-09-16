@@ -40,9 +40,12 @@ macro_rules! impl_fib_encode_for_integral_type {
                 }
             }
 
-            #[doc = "An iterator that yields fibonacci-decoded `"]
+            #[doc = "An iterator that decodes a bit stream (consisting of `bool` values)"]
+            #[doc = " and yields fibonacci-decoded `Result<"]
             #[doc = $typename_str ]
-            #[doc = "` integers."]
+            #[doc = ", DecodeError>`. Take note of [DecodeError](../../enum.DecodeError.html),"]
+            #[doc = "as bit flip errors in the bitstream can be recovered, but they may"]
+            #[doc = "affect the element following the error."]
             pub struct $decoder_name<I> {
                 pub(crate) orig: I,
             }
