@@ -17,7 +17,6 @@ macro_rules! impl_fib_encode_for_integral_type {
             use bit_vec::BitVec;
             use decode::{decode_from, DecodeError};
             use encode::{bits_from_table, Encode, EncodeOne};
-            use std::fmt::Debug;
             use std::num::$safe_typename;
 
             pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
@@ -32,7 +31,7 @@ macro_rules! impl_fib_encode_for_integral_type {
 
             impl<'a, T> Encode<$safe_typename> for T
             where
-                T: IntoIterator<Item = &'a $safe_typename> + Debug + Send + Sync,
+                T: IntoIterator<Item = &'a $safe_typename>,
             {
                 fn fib_encode_mut(self, vec: &mut BitVec) {
                     for elt in self.into_iter() {

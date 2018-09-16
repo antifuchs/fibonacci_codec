@@ -37,8 +37,8 @@ where
 /// other iterators.
 pub trait Encode<S>
 where
-    Self: Sized + Debug + Send + Sync,
-    S: Debug + Send + Sync,
+    Self: Sized,
+    S: Debug,
 {
     /// Fibonacci-encodes an iterator of integers into bits and
     /// returns the resulting bit vector.
@@ -57,7 +57,7 @@ where
 
 fn fibonacci_bit_value<T>(table: &'static [T], n: T) -> usize
 where
-    T: CheckedSub + Ord + Debug + Copy + Send + Sync + 'static,
+    T: CheckedSub + Ord + 'static,
 {
     match table.binary_search(&n) {
         Ok(pos) => pos,
@@ -73,7 +73,7 @@ where
 #[inline]
 pub(crate) fn bits_from_table<T>(n: T, table: &'static [T], result: &mut BitVec)
 where
-    T: CheckedSub + Ord + Debug + Copy + Send + Sync + 'static,
+    T: CheckedSub + Ord + Debug + Copy + 'static,
 {
     let mut current = n;
     let split_pos = fibonacci_bit_value(table, n);
