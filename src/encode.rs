@@ -55,7 +55,8 @@ where
     fn fib_encode_mut(self, vec: &mut BitVec);
 }
 
-fn fibonacci_bit_value<T>(table: &'static [T], n: T) -> usize
+#[inline]
+fn split_position<T>(table: &'static [T], n: T) -> usize
 where
     T: CheckedSub + Ord + 'static,
 {
@@ -63,6 +64,9 @@ where
         Ok(pos) => pos,
         Err(insert_pos) => {
             if insert_pos == 0 {
+                // On our public interface, we forbid zeroes, so
+                // encountering a zero would be an internal
+                // error. Let's panic:
                 panic!("encountered a zero trying to fibonacci-encode a value");
             }
             insert_pos - 1
@@ -76,26 +80,22 @@ where
     T: CheckedSub + Ord + Debug + Copy + 'static,
 {
     let mut current = n;
-    let split_pos = fibonacci_bit_value(table, n);
+    let split_pos = split_position(table, n);
 
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);
     result.set(i, true);
-    for elt in table.split_at(split_pos + 1).0.iter().rev() {
+    for elt in table[..split_pos + 1].iter().rev() {
         i -= 1;
         let bit = if elt > &current {
             false
         } else {
-            let next = match current.checked_sub(elt) {
-                Some(next) => next,
-                None => {
-                    // We encountered an underflow. This is a bug, and
-                    // I have no idea how it could even occur in real
-                    // life. A panic seems appropriate:
-                    panic!("underflow in substraction while encoding {:?}", n);
-                }
-            };
-            current = next;
+            current = current.checked_sub(elt).unwrap_or_else(|| {
+                // We encountered an underflow. This is a bug, and
+                // I have no idea how it could even occur in real
+                // life. A panic seems appropriate:
+                panic!("underflow in subtraction while encoding {:?}", n);
+            });
             true
         };
         result.set(i, bit);
