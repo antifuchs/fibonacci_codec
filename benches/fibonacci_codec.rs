@@ -49,7 +49,7 @@ fn encode_multiple_benchmark(c: &mut Criterion) {
         |b, ref n| {
             b.iter(|| {
                 let v = vec![n.sample().as_nonzero().unwrap(); ELTS];
-                v.fib_encode()
+                black_box(v.fib_encode())
             })
         },
         ALL,
@@ -74,7 +74,7 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
 fn encode_1_benchmark(c: &mut Criterion) {
     c.bench_function_over_inputs(
         "encode_1",
-        |b, ref n| b.iter(|| n.sample().as_nonzero().unwrap().fib_encode()),
+        |b, ref n| b.iter(|| black_box(n.sample().as_nonzero().unwrap().fib_encode())),
         ALL,
     );
 }
