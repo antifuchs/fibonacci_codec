@@ -1,6 +1,6 @@
 // Generated with "cargo run" in ../generator/
 #![cfg_attr(rustfmt, rustfmt_skip)]
-#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::unreadable_literal))]
 
 impl_fib_encode_for_integral_type!(u8, "u8", DecodeIter, fib_decode_u8, [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233], 12);
 impl_fib_encode_for_integral_type!(u16, "u16", DecodeIter, fib_decode_u16, [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765, 10946, 17711, 28657, 46368], 23);
