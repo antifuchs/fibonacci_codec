@@ -51,7 +51,8 @@ fn encode_multiple_benchmark(c: &mut Criterion) {
             })
         },
         ALL,
-    ).throughput(|_s| Throughput::Elements(ELTS as u32));
+    )
+    .throughput(|_s| Throughput::Elements(ELTS as u32));
     c.bench(id, bm);
 }
 
@@ -65,7 +66,8 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
             b.iter(move || assert_eq!(ELTS, d.decode(&bits)));
         },
         ALL,
-    ).throughput(|_s| Throughput::Elements(ELTS as u32));
+    )
+    .throughput(|_s| Throughput::Elements(ELTS as u32));
     c.bench(id, bm);
 }
 

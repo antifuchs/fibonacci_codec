@@ -53,10 +53,7 @@ where
 
 // Can't write the loop as `for elt in iterator` because we use the
 // iterator again later:
-#[cfg_attr(
-    feature = "cargo-clippy",
-    allow(clippy::while_let_on_iterator)
-)]
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::while_let_on_iterator))]
 #[inline]
 pub(crate) fn decode_from<I, T>(
     iterator: &mut I,
