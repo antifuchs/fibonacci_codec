@@ -30,7 +30,7 @@ run = true
 version = "stable"
 
 [dependencies]
-num = "0.1.42"
+num = "0.2.0"
 bit-vec = "0.4.4"
 failure = "0.1.1"
 failure_derive = "0.1.1"
