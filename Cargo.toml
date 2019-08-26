@@ -37,4 +37,4 @@ failure_derive = "0.1.1"
 
 [dev-dependencies]
 proptest = "0.9.3"
-criterion = "0.2"
+criterion = "0.3"
