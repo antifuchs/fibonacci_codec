@@ -75,7 +75,7 @@ where
     /// Returns an error when attempting to encode 0.
     fn fib_encode(self) -> Result<BitVec, EncodeError<Self>> {
         let mut vec = BitVec::default();
-        try!(self.fib_encode_mut(&mut vec));
+        self.fib_encode_mut(&mut vec)?;
         Ok(vec)
     }
 
@@ -106,7 +106,7 @@ where
     /// returns the resulting bit vector.
     fn fib_encode(self) -> Result<BitVec, ElementEncodeError<T>> {
         let mut vec = BitVec::default();
-        try!(self.fib_encode_mut(&mut vec));
+        self.fib_encode_mut(&mut vec)?;
         Ok(vec)
     }
 
