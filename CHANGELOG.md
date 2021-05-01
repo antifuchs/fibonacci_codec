@@ -4,6 +4,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [[0.2.0](https://docs.rs/fibonacci_codec/0.2.0/fibonacci_codec/)] - 2021-05-01
+
 ## Changed
 
 * Update rust edition to `2018`
