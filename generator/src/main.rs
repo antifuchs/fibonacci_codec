@@ -1,45 +1,47 @@
-extern crate fibonacci;
 extern crate num;
 
-use fibonacci::Fibonacci;
+use num::{CheckedAdd, Integer, One};
 use std::fs::File;
-use num::{CheckedAdd, One, Zero};
-use std::fmt::Debug;
 use std::io::BufWriter;
-use std::path::Path;
 use std::io::Write;
+use std::path::Path;
+use std::{fmt::Debug, iter::successors};
 
 fn generate<T>() -> Vec<T>
 where
-    T: Zero + One + Debug + CheckedAdd + Clone,
+    T: Integer + One + CheckedAdd + Debug + Copy,
 {
-    let numbers: Vec<T> = Fibonacci::default().collect();
+    let numbers = successors(Some((T::one(), T::one())), |(prev, cur)| {
+        prev.checked_add(cur).map(|next| (*cur, next))
+    })
+    .map(|(_, cur)| cur)
+    .collect::<Vec<T>>();
     numbers
 }
 
 const PREAMBLE: &'static str = r#"// Generated with "cargo run" in ../generator/
 #![cfg_attr(rustfmt, rustfmt_skip)]
-#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::unreadable_literal))]
 
 "#;
 
-fn write_out<T>(out: &mut Write, t_name: &str)
+fn write_out<T>(out: &mut dyn Write, t_name: &str)
 where
-    T: Zero + One + Debug + CheckedAdd + Clone,
+    T: Integer + One + CheckedAdd + Debug + Copy,
 {
     let ints = generate::<T>();
     write!(
         out,
-        "impl_fib_encode_for_integral_type!({}, {:?}, DecodeIter, fib_decode_{}, {:?}, {});\n",
-        t_name,
-        t_name,
-        t_name,
-        ints,
-        ints.len()
-    ).unwrap();
+        "impl_fib_encode_for_integral_type!({}, {:?}, DecodeIter, fib_decode_{}, {:?});\n",
+        t_name, t_name, t_name, ints,
+    )
+    .unwrap();
 }
 
-fn write_decode_wrapper<'a>(out: &mut Write, t_names: Vec<&'a str>) -> Result<(), std::io::Error> {
+fn write_decode_wrapper<'a>(
+    out: &mut dyn Write,
+    t_names: Vec<&'a str>,
+) -> Result<(), std::io::Error> {
     out.write_all(b"\npub(crate) mod funcs {\n")?;
     for typename in t_names.iter() {
         write!(
