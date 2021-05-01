@@ -12,38 +12,34 @@ fn generate<T>() -> Vec<T>
 where
     T: Integer + One + CheckedAdd + Debug + Copy,
 {
-    let numbers = successors(Some((T::one(), T::one())), |(prev, cur)| {
+    successors(Some((T::one(), T::one())), |(prev, cur)| {
         prev.checked_add(cur).map(|next| (*cur, next))
     })
     .map(|(_, cur)| cur)
-    .collect::<Vec<T>>();
-    numbers
+    .collect()
 }
 
-const PREAMBLE: &'static str = r#""#;
+const PREAMBLE: &str = r#""#;
 
 fn write_out<T>(out: &mut dyn Write, t_name: &str)
 where
     T: Integer + One + CheckedAdd + Debug + Copy,
 {
     let ints = generate::<T>();
-    write!(
+    writeln!(
         out,
-        "impl_fib_encode_for_integral_type!({}, {:?}, DecodeIter, fib_decode_{}, {:?});\n",
+        "impl_fib_encode_for_integral_type!({}, {:?}, DecodeIter, fib_decode_{}, {:?});",
         t_name, t_name, t_name, ints,
     )
     .unwrap();
 }
 
-fn write_decode_wrapper<'a>(
-    out: &mut dyn Write,
-    t_names: Vec<&'a str>,
-) -> Result<(), std::io::Error> {
+fn write_decode_wrapper(out: &mut dyn Write, t_names: Vec<&'_ str>) -> Result<(), std::io::Error> {
     out.write_all(b"\npub(crate) mod funcs {\n")?;
     for typename in t_names.iter() {
-        write!(
+        writeln!(
             out,
-            "    impl_decoder!({}, {:?}, fib_decode_{});\n",
+            "    impl_decoder!({}, {:?}, fib_decode_{});",
             typename, typename, typename
         )?;
     }
