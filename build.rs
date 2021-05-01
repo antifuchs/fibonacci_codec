@@ -1,6 +1,7 @@
 extern crate num;
 
 use num::{CheckedAdd, Integer, One};
+use std::env;
 use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
@@ -19,11 +20,7 @@ where
     numbers
 }
 
-const PREAMBLE: &'static str = r#"// Generated with "cargo run" in ../generator/
-#![cfg_attr(rustfmt, rustfmt_skip)]
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::unreadable_literal))]
-
-"#;
+const PREAMBLE: &'static str = r#""#;
 
 fn write_out<T>(out: &mut dyn Write, t_name: &str)
 where
@@ -55,8 +52,9 @@ fn write_decode_wrapper<'a>(
 }
 
 fn main() {
-    let output = Path::new("../src/int.rs");
-    let mut out = BufWriter::new(File::create(output).unwrap());
+    let out_dir = env::var_os("OUT_DIR").unwrap();
+    let output = Path::new(&out_dir).join("int.rs");
+    let mut out = BufWriter::new(File::create(&output).unwrap());
     write!(&mut out, "{}", PREAMBLE).unwrap();
 
     write_out::<u8>(&mut out, "u8");
@@ -65,4 +63,6 @@ fn main() {
     write_out::<u64>(&mut out, "u64");
     write_decode_wrapper(&mut out, vec!["u8", "u16", "u32", "u64"]).unwrap();
     out.flush().unwrap();
+
+    println!("cargo:rerun-if-changed=build.rs");
 }

@@ -68,7 +68,9 @@ mod macros;
 
 mod decode;
 mod encode;
-pub mod int;
+pub mod int {
+    include!(concat!(env!("OUT_DIR"), "/int.rs"));
+}
 
 pub use decode::DecodeError;
 pub use encode::*;
