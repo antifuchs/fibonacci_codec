@@ -6,19 +6,20 @@ macro_rules! impl_fib_encode_for_integral_type {
         $typename_str:expr,
         $decoder_name:ident,
         $decode_name:ident,
-        $table:expr,
-        $tablelength:expr
+        $table:expr
     ) => {
         #[doc = "Functions and iterators to decode `"]
         #[doc = $typename_str]
         #[doc = "` integers."]
         pub mod $typename {
+            use crate::decode::{decode_from, DecodeError};
+            use crate::encode::{
+                bits_from_table, ElementEncodeError, Encode, EncodeError, EncodeOne,
+            };
             use bit_vec::BitVec;
-            use decode::{decode_from, DecodeError};
-            use encode::{bits_from_table, ElementEncodeError, Encode, EncodeError, EncodeOne};
             use std::fmt::Debug;
 
-            pub(crate) const TABLE: &'static [$typename; $tablelength] = &($table);
+            pub(crate) const TABLE: &'static [$typename] = &($table);
 
             impl EncodeOne for $typename {
                 fn fib_encode_mut(self, vec: &mut BitVec) -> Result<(), EncodeError<$typename>> {

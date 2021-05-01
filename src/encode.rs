@@ -23,7 +23,7 @@ impl<T> Display for EncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         match *self {
             EncodeError::ValueTooSmall(ref n) => write!(f, "value {:?} is too small to encode", n),
             EncodeError::Underflow(ref n) => {
@@ -54,7 +54,7 @@ impl<T> Display for ElementEncodeError<T>
 where
     T: Debug + Send + Sync + 'static,
 {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
         write!(
             f,
             "could not encode iterator element {:?}: {}",
@@ -136,7 +136,7 @@ where
     let split_pos = table
         .iter()
         .rposition(|elt| *elt <= n)
-        .ok_or_else(|| EncodeError::ValueTooSmall::<T>(n))?;
+        .ok_or(EncodeError::ValueTooSmall::<T>(n))?;
 
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);

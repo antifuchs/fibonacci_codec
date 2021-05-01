@@ -57,19 +57,18 @@
 //! * [Wikipedia](https://en.wikipedia.org/wiki/Fibonacci_coding)
 //! * [Fraenkel, Aviezri S.; Klein, Shmuel T. (1996). "Robust universal complete codes for transmission and compression"](http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.37.3064)
 
-extern crate bit_vec;
-extern crate failure;
 #[macro_use]
 extern crate failure_derive;
-extern crate num;
 
 // Macros need to be defined first:
 mod macros;
 
 mod decode;
 mod encode;
-pub mod int;
+pub mod int {
+    include!(concat!(env!("OUT_DIR"), "/int.rs"));
+}
 
-pub use decode::DecodeError;
-pub use encode::*;
-pub use int::funcs::*;
+pub use crate::decode::DecodeError;
+pub use crate::encode::*;
+pub use crate::int::funcs::*;

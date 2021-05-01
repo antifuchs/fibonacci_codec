@@ -1,6 +1,3 @@
-extern crate bit_vec;
-extern crate fibonacci_codec;
-
 use bit_vec::BitVec;
 use fibonacci_codec::{Encode, EncodeOne};
 
