@@ -40,5 +40,5 @@ failure_derive = "0.1.1"
 num = "0.4"
 
 [dev-dependencies]
-proptest = "0.10.1"
+proptest = "1.0.0"
 criterion = "0.3"
