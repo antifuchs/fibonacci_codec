@@ -1,8 +1,4 @@
-extern crate bit_vec;
-extern crate fibonacci_codec;
-extern crate num;
-
-extern crate proptest;
+use proptest;
 
 use fibonacci_codec::{fib_decode_u16, fib_decode_u32, fib_decode_u64, fib_decode_u8};
 use fibonacci_codec::{Encode, EncodeOne};
