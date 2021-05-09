@@ -4,6 +4,13 @@
 
 ## [Unreleased] - ReleaseDate
 
+## Changed
+
+* The encoding functions now use binary search, eliminating a lot of
+  steps when encoding smaller numbers in wider types like `u32` and
+  `u64`.
+
+
 ## [[0.2.0](https://docs.rs/fibonacci_codec/0.2.0/fibonacci_codec/)] - 2021-05-01
 
 ## Changed
