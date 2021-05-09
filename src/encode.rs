@@ -130,13 +130,14 @@ pub(crate) fn bits_from_table<T>(
     result: &mut BitVec,
 ) -> Result<(), EncodeError<T>>
 where
-    T: CheckedSub + PartialOrd + Debug + Copy + Send + Sync + 'static,
+    T: CheckedSub + PartialOrd + Ord + Debug + Copy + Send + Sync + 'static,
 {
     let mut current = n;
-    let split_pos = table
-        .iter()
-        .rposition(|elt| *elt <= n)
-        .ok_or(EncodeError::ValueTooSmall::<T>(n))?;
+    let split_pos = match table.binary_search(&n) {
+        Ok(n) => n,
+        Err(n) if n > 0 => n - 1,
+        Err(_) => return Err(EncodeError::ValueTooSmall::<T>(n)),
+    };
 
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);
