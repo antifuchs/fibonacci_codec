@@ -142,7 +142,7 @@ where
     let mut i = result.len() + split_pos + 1;
     result.grow(split_pos + 2, false);
     result.set(i, true);
-    for elt in table.split_at(split_pos + 1).0.iter().rev() {
+    for elt in table[0..=split_pos].iter().rev() {
         i -= 1;
         let bit = if elt > &current {
             false
