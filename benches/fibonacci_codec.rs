@@ -1,14 +1,13 @@
 #[macro_use]
 extern crate criterion;
 
-use bit_vec::BitVec;
 use fibonacci_codec::*;
 use rand::{
     distributions::{Distribution, Uniform},
     thread_rng,
 };
 
-use criterion::{black_box, BatchSize, Criterion, ParameterizedBenchmark, Throughput};
+use criterion::{black_box, BatchSize, Criterion, Throughput};
 
 #[derive(Debug)]
 enum Width {
@@ -35,22 +34,18 @@ fn encode_multiple_benchmark(c: &mut Criterion) {
         }};
     }
 
-    let id = "encode_multiple";
-    let bm = ParameterizedBenchmark::new(
-        id,
-        |b, ref n| {
-            let mut thread_rng = thread_rng();
-            match n {
-                Width::U8 => logic!(b, u8, thread_rng),
-                Width::U16 => logic!(b, u16, thread_rng),
-                Width::U32 => logic!(b, u32, thread_rng),
-                Width::U64 => logic!(b, u64, thread_rng),
-            }
-        },
-        ALL,
-    )
-    .throughput(|_s| Throughput::Elements(ELTS as u64));
-    c.bench(id, bm);
+    let mut group = c.benchmark_group("encode_multiple");
+    let mut thread_rng = thread_rng();
+    for n in ALL {
+        group.throughput(Throughput::Elements(ELTS as u64));
+        group.bench_with_input(format!("{:?}", n), n, |b, ref n| match n {
+            Width::U8 => logic!(b, u8, thread_rng),
+            Width::U16 => logic!(b, u16, thread_rng),
+            Width::U32 => logic!(b, u32, thread_rng),
+            Width::U64 => logic!(b, u64, thread_rng),
+        });
+    }
+    group.finish();
 }
 
 fn decode_multiple_benchmark(c: &mut Criterion) {
@@ -68,10 +63,10 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
         }};
     }
 
-    let id = "decode_multiple";
-    let bm = ParameterizedBenchmark::new(
-        id,
-        |b, ref n| {
+    let mut group = c.benchmark_group("decode_multiple");
+    for n in ALL {
+        group.throughput(Throughput::Elements(ELTS as u64));
+        group.bench_with_input(format!("{:?}", n), n, |b, ref n| {
             let mut thread_rng = thread_rng();
             match n {
                 Width::U8 => logic!(b, u8, fib_decode_u8, thread_rng),
@@ -79,11 +74,9 @@ fn decode_multiple_benchmark(c: &mut Criterion) {
                 Width::U32 => logic!(b, u32, fib_decode_u32, thread_rng),
                 Width::U64 => logic!(b, u64, fib_decode_u64, thread_rng),
             }
-        },
-        ALL,
-    )
-    .throughput(|_s| Throughput::Elements(ELTS as u64));
-    c.bench(id, bm);
+        });
+    }
+    group.finish();
 }
 
 fn encode_1_benchmark(c: &mut Criterion) {
@@ -97,20 +90,17 @@ fn encode_1_benchmark(c: &mut Criterion) {
             )
         }};
     }
-
-    c.bench_function_over_inputs(
-        "encode_1",
-        |b, ref n| {
-            let mut thread_rng = thread_rng();
-            match n {
-                Width::U8 => logic!(b, u8, thread_rng),
-                Width::U16 => logic!(b, u16, thread_rng),
-                Width::U32 => logic!(b, u32, thread_rng),
-                Width::U64 => logic!(b, u64, thread_rng),
-            }
-        },
-        ALL,
-    );
+    let mut group = c.benchmark_group("encode_1");
+    let mut thread_rng = thread_rng();
+    for n in ALL {
+        group.bench_with_input(format!("{:?}", n), n, |b, ref n| match n {
+            Width::U8 => logic!(b, u8, thread_rng),
+            Width::U16 => logic!(b, u16, thread_rng),
+            Width::U32 => logic!(b, u32, thread_rng),
+            Width::U64 => logic!(b, u64, thread_rng),
+        });
+    }
+    group.finish();
 }
 
 fn decode_1_benchmark(c: &mut Criterion) {
@@ -125,19 +115,17 @@ fn decode_1_benchmark(c: &mut Criterion) {
         }};
     }
 
-    c.bench_function_over_inputs(
-        "decode_1",
-        |b, ref n| {
-            let mut thread_rng = thread_rng();
-            match n {
-                Width::U8 => logic!(b, u8, fib_decode_u8, thread_rng),
-                Width::U16 => logic!(b, u16, fib_decode_u16, thread_rng),
-                Width::U32 => logic!(b, u32, fib_decode_u32, thread_rng),
-                Width::U64 => logic!(b, u64, fib_decode_u64, thread_rng),
-            }
-        },
-        ALL,
-    );
+    let mut group = c.benchmark_group("decode_1");
+    let mut thread_rng = thread_rng();
+    for n in ALL {
+        group.bench_with_input(format!("{:?}", n), n, |b, ref n| match n {
+            Width::U8 => logic!(b, u8, fib_decode_u8, thread_rng),
+            Width::U16 => logic!(b, u16, fib_decode_u16, thread_rng),
+            Width::U32 => logic!(b, u32, fib_decode_u32, thread_rng),
+            Width::U64 => logic!(b, u64, fib_decode_u64, thread_rng),
+        });
+    }
+    group.finish();
 }
 
 criterion_group!(
