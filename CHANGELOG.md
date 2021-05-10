@@ -4,6 +4,14 @@
 
 ## [Unreleased] - ReleaseDate
 
+## Changed
+
+* The encoding function now does less unnecessary work, speeding it up
+  by about 10% in local benchmarks.
+* The benchmarks now measure performance for a more even (and larger)
+  distribution of integers.
+
+
 ## [[0.2.0](https://docs.rs/fibonacci_codec/0.2.0/fibonacci_codec/)] - 2021-05-01
 
 ## Changed

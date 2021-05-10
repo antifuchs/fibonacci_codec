@@ -8,6 +8,7 @@ fn to_bits(slice: BitVec) -> Vec<u8> {
 #[test]
 fn test_factor_wikipedia() {
     // Some of the examples on https://en.wikipedia.org/wiki/Fibonacci_coding:
+    assert_eq!(vec![1, 1], to_bits((1 as u8).fib_encode().unwrap()));
     assert_eq!(vec![0, 1, 1], to_bits((2 as u8).fib_encode().unwrap()));
     assert_eq!(vec![1, 0, 1, 1], to_bits((4 as u8).fib_encode().unwrap()));
     assert_eq!(vec![0, 0, 1, 1], to_bits((3 as u8).fib_encode().unwrap()));

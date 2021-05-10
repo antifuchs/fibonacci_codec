@@ -143,9 +143,7 @@ where
     result.set(i, true);
     for elt in table.split_at(split_pos + 1).0.iter().rev() {
         i -= 1;
-        let bit = if elt > &current {
-            false
-        } else {
+        if elt <= &current {
             let next = match current.checked_sub(elt) {
                 Some(next) => next,
                 None => {
@@ -158,9 +156,8 @@ where
                 }
             };
             current = next;
-            true
+            result.set(i, true);
         };
-        result.set(i, bit);
     }
     Ok(())
 }
