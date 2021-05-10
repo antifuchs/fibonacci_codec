@@ -130,37 +130,37 @@ pub(crate) fn bits_from_table<T>(
     result: &mut BitVec,
 ) -> Result<(), EncodeError<T>>
 where
-    T: CheckedSub + PartialOrd + Ord + Debug + Copy + Send + Sync + 'static,
+    T: CheckedSub + PartialOrd + Debug + Copy + Send + Sync + 'static,
 {
     let mut current = n;
-    let mut i_entry = match table.binary_search(&current) {
-        Ok(n) => n,
-        Err(n) if n > 0 => n - 1,
-        Err(_) => return Err(EncodeError::ValueTooSmall::<T>(n)),
-    };
-    let mut i = result.len() + i_entry;
-    result.grow(i_entry + 2, false);
-    result.set(i + 1, true);
-    loop {
-        let elt = table[i_entry];
-        result.set(i, true);
-        current = match current.checked_sub(&elt) {
-            Some(next) => next,
-            None => {
-                // We encountered an underflow. This is a bug, and
-                // I have no idea how it could even occur in real
-                // life. However, let's clean up and return a
-                // reasonable error:
-                result.truncate(i + 2);
-                return Err(EncodeError::Underflow(n));
-            }
+    let split_pos = table
+        .iter()
+        .rposition(|elt| *elt <= n)
+        .ok_or(EncodeError::ValueTooSmall::<T>(n))?;
+
+    let mut i = result.len() + split_pos + 1;
+    result.grow(split_pos + 2, false);
+    result.set(i, true);
+    for elt in table.split_at(split_pos + 1).0.iter().rev() {
+        i -= 1;
+        let bit = if elt > &current {
+            false
+        } else {
+            let next = match current.checked_sub(elt) {
+                Some(next) => next,
+                None => {
+                    // We encountered an underflow. This is a bug, and
+                    // I have no idea how it could even occur in real
+                    // life. However, let's clean up and return a
+                    // reasonable error:
+                    result.truncate(split_pos + 2);
+                    return Err(EncodeError::Underflow(n));
+                }
+            };
+            current = next;
+            true
         };
-        let new_i_entry = match table.binary_search(&current) {
-            Ok(n) => n,
-            Err(n) if n > 0 => n - 1,
-            Err(_) => return Ok(()),
-        };
-        i -= i_entry - new_i_entry;
-        i_entry = new_i_entry;
+        result.set(i, bit);
     }
+    Ok(())
 }
